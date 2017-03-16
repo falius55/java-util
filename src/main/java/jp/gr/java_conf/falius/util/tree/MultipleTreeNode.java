@@ -80,7 +80,6 @@ public class MultipleTreeNode<E> implements TreeNode<E> {
     @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object another) {
-        // TODO: 異なる型の要素同士で比較しても大丈夫かテスト
         return another instanceof TreeNode && mElem.equals(((TreeNode<E>) another).getElem());
     }
 

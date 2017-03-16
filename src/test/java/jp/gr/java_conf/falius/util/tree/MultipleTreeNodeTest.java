@@ -71,4 +71,37 @@ public class MultipleTreeNodeTest {
 
         assertThat(cnt, is(1 + (1 * i_len) + (1 * i_len * j_len) + (1 * i_len * j_len * k_len)));
     }
+
+    @Test
+    public void equalsTest() {
+        TreeNode<String> strNode = new MultipleTreeNode<>("abc");
+        TreeNode<String> strNode2 = new MultipleTreeNode<>("abc");
+        assertThat(strNode, is(strNode2));
+
+        TreeNode<Integer> intNode = new MultipleTreeNode<>(10);
+        TreeNode<String> strNode3 = new MultipleTreeNode<>("10");
+        assertThat(intNode, is(not(strNode3)));
+    }
+
+    @Test
+    public void hashTest() {
+        Set<TreeNode<String>> set = new HashSet<>();
+
+        TreeNode<String> strNode = new MultipleTreeNode<>("aaa");
+        set.add(strNode);
+        assertTrue(set.contains(strNode));
+
+        TreeNode<String> strNode2 = new MultipleTreeNode<>("aaa");
+        assertTrue(set.contains(strNode2));
+
+        TreeNode<String> strNode3 = new MultipleTreeNode<>("bbb");
+        TreeNode<String> strNode4 = new MultipleTreeNode<>("ccc");
+
+        set.add(strNode);
+        set.add(strNode2);
+        set.add(strNode3);
+        set.add(strNode4);
+
+        assertThat(set.size(), is(3));
+    }
 }
