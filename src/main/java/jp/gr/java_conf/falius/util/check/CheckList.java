@@ -87,8 +87,12 @@ public class CheckList<E> implements Checkable<E>, Iterable<E> {
         return ret;
     }
 
+    public E get(int index) {
+        return find(index).mElem;
+    }
+
     public Iterator<E> iterator() {
-        return new EntryIterator();
+        return new EntryIterator<E>(this);
     }
 
     private Entry<E> find(E e) {
@@ -111,17 +115,22 @@ public class CheckList<E> implements Checkable<E>, Iterable<E> {
                 String.format("invalid index %d : out of %d entries", index, mEntries.size()));
     }
 
-    public class EntryIterator implements Iterator<E> {
+    public static class EntryIterator<E> implements Iterator<E> {
+        private final CheckList<E> mOuter;
         private int nextIndex = 0;
+
+        private EntryIterator(CheckList<E> outer) {
+            mOuter = outer;
+        }
 
         @Override
         public boolean hasNext() {
-            return nextIndex < mEntries.size();
+            return nextIndex < mOuter.mEntries.size();
         }
 
         @Override
         public E next() {
-            return find(nextIndex++).mElem;
+            return mOuter.find(nextIndex++).mElem;
         }
     }
 
