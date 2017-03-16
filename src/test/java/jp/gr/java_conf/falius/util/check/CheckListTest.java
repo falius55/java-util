@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -111,6 +112,47 @@ public class CheckListTest {
 
         for (String c : checkChars.keySet()) {
             assertTrue(checkList.isChecked(c));
+        }
+    }
+
+    @Test
+    public void checkedSetTest() {
+        List<String> checkElem = new ArrayList<String>() {
+            {
+                add("aaa");
+                add("check it!");
+                add("hello world");
+                add("ccc");
+                add("hello world");
+            }
+        };
+        List<String> nonCheckElem = new ArrayList<String>() {
+            {
+                add("bbb");
+                add("I am Bob.");
+                add("in test");
+                add("abcdefg");
+            }
+        };
+        List<String> allElem = new ArrayList<String>();
+        allElem.addAll(checkElem);
+        allElem.addAll(nonCheckElem);
+        allElem.add("check it!");  // 重複要素
+
+        CheckList<String> checkList = new CheckList<>(allElem);
+
+        for (String elem : checkElem) {
+            checkList.check(elem);
+        }
+
+        Set<String> checkedSet = checkList.checkedSet();
+        for (String elem : checkElem) {
+            assertTrue(checkedSet.contains(elem));
+        }
+
+        Set<String> nonCheckedSet = checkList.nonCheckedSet();
+        for (String elem : nonCheckElem) {
+            assertTrue(nonCheckedSet.contains(elem));
         }
     }
 }
