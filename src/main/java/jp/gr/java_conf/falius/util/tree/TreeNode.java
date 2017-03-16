@@ -6,8 +6,6 @@ import java.util.function.Predicate;
 
 public interface TreeNode<E> extends Iterable<TreeNode<E>> {
 
-    TreeNode<E> addChild(E child);
-
     E getElem();
 
     Collection<? extends TreeNode<E>> children();

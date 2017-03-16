@@ -20,7 +20,6 @@ public class MultipleTreeNode<E> implements TreeNode<E> {
         mElem = elem;
     }
 
-    @Override
     public MultipleTreeNode<E> addChild(E child) {
         MultipleTreeNode<E> childNode = new MultipleTreeNode<E>(child);
         return addChild(childNode);

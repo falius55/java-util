@@ -22,7 +22,7 @@ public class MultipleTreeNodeTest {
             children.add("child" + i);
         }
 
-        TreeNode<String> root = new MultipleTreeNode<>("root");
+        MultipleTreeNode<String> root = new MultipleTreeNode<>("root");
         for (String strChild : children) {
             root.addChild(strChild);
         }
@@ -40,11 +40,11 @@ public class MultipleTreeNodeTest {
         int j_len = 6;
         int k_len = 10;
 
-        TreeNode<String> root = new MultipleTreeNode<>("-1");
+        MultipleTreeNode<String> root = new MultipleTreeNode<>("-1");
         for (int i = 0; i < i_len; i++) {
-            TreeNode<String> childNode = root.addChild(Integer.toString(i));
+            MultipleTreeNode<String> childNode = root.addChild(Integer.toString(i));
             for (int j = 0; j < j_len; j++) {
-                TreeNode<String> grandChildNode
+                MultipleTreeNode<String> grandChildNode
                     = childNode.addChild(childNode.getElem() + "-" + j);
                 for (int k = 0; k < k_len; k++) {
                     grandChildNode.addChild(grandChildNode.getElem() + "-" + k);
@@ -110,7 +110,7 @@ public class MultipleTreeNodeTest {
 
     @Test
     public void overlapChildTest() {
-        TreeNode<String> root = new MultipleTreeNode<>("root");
+        MultipleTreeNode<String> root = new MultipleTreeNode<>("root");
         TreeNode<String> childA = root.addChild("aaa");
         TreeNode<String> childB = root.addChild("bbb");
         TreeNode<String> childC = root.addChild("ccc");
@@ -144,11 +144,11 @@ public class MultipleTreeNodeTest {
         int j_len = 6;
         int k_len = 10;
 
-        TreeNode<String> root = new MultipleTreeNode<>("root");
+        MultipleTreeNode<String> root = new MultipleTreeNode<>("root");
         for (int i = 0; i < i_len; i++) {
-            TreeNode<String> childNode = root.addChild(Integer.toString(i));
+            MultipleTreeNode<String> childNode = root.addChild(Integer.toString(i));
             for (int j = 0; j < j_len; j++) {
-                TreeNode<String> grandChildNode
+                MultipleTreeNode<String> grandChildNode
                     = childNode.addChild(childNode.getElem() + "-" + j);
                 for (int k = 0; k < k_len; k++) {
                     grandChildNode.addChild(grandChildNode.getElem() + "-" + k);
