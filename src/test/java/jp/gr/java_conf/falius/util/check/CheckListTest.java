@@ -4,7 +4,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -86,6 +88,29 @@ public class CheckListTest {
 
     @Test
     public void indexCheckTest() {
+        List<String> elems = new ArrayList<>();
+        for (char c = 'a'; c <= 'z'; c++) {
+            elems.add(String.valueOf(c));
+        }
 
+        CheckList<String> checkList = new CheckList<>(elems);
+
+        Map<String, Integer> checkChars = new HashMap<String, Integer>() {
+            {
+                put("c", 2);
+                put("h", 7);
+                put("l", 11);
+                put("x", 23);
+                put("z", 25);
+            }
+        };
+
+        for (Integer i : checkChars.values()) {
+            checkList.check(i);
+        }
+
+        for (String c : checkChars.keySet()) {
+            assertTrue(checkList.isChecked(c));
+        }
     }
 }
