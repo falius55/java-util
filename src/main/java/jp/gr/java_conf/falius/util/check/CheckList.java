@@ -117,6 +117,10 @@ public class CheckList<E> implements Checkable<E>, Iterable<E> {
         return find(index).mElem;
     }
 
+    public int size() {
+        return mEntries.size();
+    }
+
     public Iterator<E> iterator() {
         return new EntryIterator<E>(this);
     }

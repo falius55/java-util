@@ -16,6 +16,7 @@ public class CheckListTest {
     @Test
     public void addingTest() {
         CheckList<String> list = new CheckList<>("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+        assertThat(list.size(), is(10));
 
         for (int i = 0; i < 10; i++) {
             assertThat(list.get(i), is(Integer.toString(i)));
@@ -27,9 +28,11 @@ public class CheckListTest {
         }
 
         CheckList<Integer> intList = new CheckList<>(elems);
+        assertThat(intList.size(), is(100));
         for (int i = 0; i < 100; i++) {
             assertThat(intList.get(i), is(Integer.valueOf(i)));
         }
+
     }
 
     @Test
@@ -85,6 +88,12 @@ public class CheckListTest {
                 assertFalse(isChecked);
             }
         }
+
+        for (String elem : checkList) {
+            checkList.check(elem);
+        }
+
+        assertTrue(checkList.isCheckedAll());
     }
 
     @Test
