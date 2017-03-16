@@ -62,4 +62,14 @@ public class MultipleTreeNode<E> implements TreeNode<E> {
             child.find(func, set);
         }
     }
+
+    @Override
+    public int hashCode() {
+        return mElem.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object another) {
+        return mElem.equals(another);
+    }
 }
