@@ -107,7 +107,7 @@ public class CheckList<E> implements Checkable<E>, Iterable<E> {
     private Entry<E> find(int index) {
         int cnt = 0;
         for (Entry<E> entry : mEntries) {
-            if (cnt == index) {
+            if (cnt++ == index) {
                 return entry;
             }
         }
@@ -130,7 +130,7 @@ public class CheckList<E> implements Checkable<E>, Iterable<E> {
 
         @Override
         public E next() {
-            return mOuter.find(nextIndex++).mElem;
+            return mOuter.get(nextIndex++);
         }
     }
 
