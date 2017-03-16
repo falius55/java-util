@@ -14,5 +14,7 @@ public interface TreeNode<E> extends Iterable<TreeNode<E>> {
 
     TreeNode<E> getParent();
 
-    Set<? extends TreeNode<E>> find(Predicate<TreeNode<E>> func);
+    TreeNode<E> find(Predicate<TreeNode<E>> func);
+
+    Set<TreeNode<E>> findAll(Predicate<TreeNode<E>> func);
 }

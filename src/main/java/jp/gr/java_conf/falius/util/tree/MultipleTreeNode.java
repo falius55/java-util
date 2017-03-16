@@ -57,20 +57,24 @@ public class MultipleTreeNode<E> implements TreeNode<E> {
     }
 
     @Override
-    public Set<? extends TreeNode<E>> find(Predicate<TreeNode<E>> func) {
-        Set<TreeNode<E>> ret = new HashSet<>();
-        find(func, ret);
-        return ret;
+    public TreeNode<E> find(Predicate<TreeNode<E>> func) {
+        for(TreeNode<E> node : this) {
+            if(func.test(node)) {
+                return node;
+            }
+        }
+        return null;
     }
 
-    private void find(
-            Predicate<TreeNode<E>> func, Set<? super MultipleTreeNode<E>> set) {
-        for (MultipleTreeNode<E> child : mChildren) {
-            if (func.test(child)) {
-                set.add(child);
+    @Override
+    public Set<TreeNode<E>> findAll(Predicate<TreeNode<E>> func) {
+        Set<TreeNode<E>> ret = new HashSet<>();
+        for (TreeNode<E> node : this) {
+            if (func.test(node)) {
+                ret.add(node);
             }
-            child.find(func, set);
         }
+        return ret;
     }
 
     @Override

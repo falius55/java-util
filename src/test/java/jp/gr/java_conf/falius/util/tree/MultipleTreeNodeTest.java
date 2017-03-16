@@ -7,6 +7,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -134,6 +135,46 @@ public class MultipleTreeNodeTest {
             assertThat(child.getElem(), is(elem));
             TreeNode<String> node = nodeExpected.poll();
             assertThat(child, sameInstance(node));
+        }
+    }
+
+    @Test
+    public void findTest() {
+        int i_len = 4;
+        int j_len = 6;
+        int k_len = 10;
+
+        TreeNode<String> root = new MultipleTreeNode<>("root");
+        for (int i = 0; i < i_len; i++) {
+            TreeNode<String> childNode = root.addChild(Integer.toString(i));
+            for (int j = 0; j < j_len; j++) {
+                TreeNode<String> grandChildNode
+                    = childNode.addChild(childNode.getElem() + "-" + j);
+                for (int k = 0; k < k_len; k++) {
+                    grandChildNode.addChild(grandChildNode.getElem() + "-" + k);
+                }
+            }
+        }
+
+        TreeNode<String> foundRoot = root.find(node -> node.getElem().equals("root"));
+        assertThat(foundRoot, sameInstance(root));
+
+        TreeNode<String> node3_4 = root.find(node -> node.getElem().equals("3-4"));
+        assertThat(node3_4.getElem(), is("3-4"));
+
+        TreeNode<String> parentNode = root.find(node -> node.equals(node3_4.getParent()));
+        assertThat(parentNode.getElem(), is("3"));
+
+        TreeNode<String> nonExistsNode = root.find(node -> node.getElem().length() > 100);
+        assertThat(nonExistsNode, nullValue());
+
+        Set<TreeNode<String>> oneContainningNode = root.findAll(node -> node.getElem().contains("1"));
+        assertThat(oneContainningNode.size(), is((1 + j_len + j_len * k_len) + (1 + k_len + j_len - 1) * (i_len - 1)));
+
+        Set<TreeNode<String>> childrenOf3 = root.findAll(node ->
+            Objects.nonNull(node.getParent()) && node.getParent().equals(parentNode));
+        for (int i = 0; i < j_len; i++) {
+            assertThat(childrenOf3, hasItem(new MultipleTreeNode<String>("3-" + i)));
         }
     }
 }
