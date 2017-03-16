@@ -36,8 +36,32 @@ public class CheckList<E> implements Checkable<E>, Iterable<E> {
         entry.mIsChecked = true;
     }
 
+    /**
+     * <p>
+     * 追加された順序であるインデックスで要素を指定してチェックをつけます。<br>
+     * <p>
+     * 注意：<br>
+     * 型パラメータがIntegerの場合のみcheck(E e)に委譲され、同値のオブジェクトにチェックがつけられます
+     *     (そのためインデックスによる指定はできません)。
+     *     その場合は対象オブジェクトの検索が二度行われることになるため、効率が求められる際はintではなく直接Integerを
+     *     引数に渡すようにしてください。
+     * @param index
+     */
     public void check(int index) {
         Entry<E> entry = find(index);
+
+        /*
+         * もし型パラメータがIntegerの場合は、プリミティブのintが渡されても
+         *     Indexではなく同値オブジェクトを探してチェックをつける。
+         * Integerを要素にしているのにindexで要素を指定することは考えづらいので、
+         *     おそらくこの方が期待していた動作になるはず。
+         * この際、検索を二度(find(int)とfind(E))行うことになるため効率はよくない。
+         */
+        if (entry.mElem instanceof Integer) {
+            check(Integer.valueOf(index));
+            return;
+        }
+
         entry.mIsChecked = true;
     }
 

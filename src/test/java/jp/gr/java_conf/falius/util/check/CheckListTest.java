@@ -49,4 +49,43 @@ public class CheckListTest {
             assertThat(i, is(cnt++));
         }
     }
+
+    @Test
+    public void simpleCheckTest() {
+        List<String> elems = new ArrayList<>();
+        for (char c = 'a'; c <= 'z'; c++) {
+            elems.add(String.valueOf(c));
+        }
+
+        CheckList<String> checkList = new CheckList<>(elems);
+
+        List<String> checkChars = new ArrayList<String>() {
+            {
+                add("c");
+                add("j");
+                add("u");
+                add("o");
+                add("p");
+                add("v");
+            }
+        };
+
+        for (String c : checkChars) {
+            checkList.check(c);
+        }
+
+        for (String elem : checkList) {
+            boolean isChecked = checkList.isChecked(elem);
+            if (checkChars.contains(elem)) {
+                assertTrue(isChecked);
+            } else {
+                assertFalse(isChecked);
+            }
+        }
+    }
+
+    @Test
+    public void indexCheckTest() {
+
+    }
 }
