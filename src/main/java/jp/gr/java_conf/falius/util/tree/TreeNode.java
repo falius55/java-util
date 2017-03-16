@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public interface TreeNode<E> {
+public interface TreeNode<E> extends Iterable<TreeNode<E>> {
 
-    void addChild(E child);
+    TreeNode<E> addChild(E child);
 
     E getElem();
 
