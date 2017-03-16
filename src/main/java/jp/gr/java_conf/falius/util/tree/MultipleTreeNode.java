@@ -22,22 +22,23 @@ public class MultipleTreeNode<E> implements TreeNode<E> {
 
     @Override
     public MultipleTreeNode<E> addChild(E child) {
-        // TODO: 重複要素が含まれないかのテスト
+        MultipleTreeNode<E> childNode = new MultipleTreeNode<E>(child);
+        return addChild(childNode);
+    }
+
+    public MultipleTreeNode<E> addChild(MultipleTreeNode<E> child) {
         if (mChildren.contains(child)) {
             return mChildren.get(mChildren.indexOf(child));
         }
-        MultipleTreeNode<E> childNode = new MultipleTreeNode<E>(child);
-        addChild(childNode);
-        return childNode;
-    }
 
-    public void addChild(MultipleTreeNode<E> child) {
         mChildren.add(child);
 
         if (Objects.nonNull(child.mParent)) {
             child.mParent.mChildren.remove(child);
         }
         child.mParent = this;
+
+        return child;
     }
 
     @Override

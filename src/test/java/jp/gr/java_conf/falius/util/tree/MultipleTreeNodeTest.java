@@ -3,9 +3,11 @@ package jp.gr.java_conf.falius.util.tree;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import org.junit.Test;
@@ -103,5 +105,35 @@ public class MultipleTreeNodeTest {
         set.add(strNode4);
 
         assertThat(set.size(), is(3));
+    }
+
+    @Test
+    public void overlapChildTest() {
+        TreeNode<String> root = new MultipleTreeNode<>("root");
+        TreeNode<String> childA = root.addChild("aaa");
+        TreeNode<String> childB = root.addChild("bbb");
+        TreeNode<String> childC = root.addChild("ccc");
+        assertThat(root.children().size(), is(3));
+
+        TreeNode<String> childB2 = root.addChild("bbb");
+        assertThat(root.children().size(), is(3));
+        assertThat(childB, is(childB2));
+        assertThat(childB, sameInstance(childB2));
+
+        Queue<String> valueExpected = new ArrayDeque<>();
+        valueExpected.add("aaa");
+        valueExpected.add("bbb");
+        valueExpected.add("ccc");
+        Queue<TreeNode<String>> nodeExpected = new ArrayDeque<>();
+        nodeExpected.add(childA);
+        nodeExpected.add(childB);
+        nodeExpected.add(childC);
+
+        for (TreeNode<String> child : root.children()) {
+            String elem = valueExpected.poll();
+            assertThat(child.getElem(), is(elem));
+            TreeNode<String> node = nodeExpected.poll();
+            assertThat(child, sameInstance(node));
+        }
     }
 }
