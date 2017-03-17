@@ -1,5 +1,7 @@
 jp.gr.java_conf.falius.util.check
+jp.gr.java_conf.falius.util.datetime
 jp.gr.java_conf.falius.util.range
 jp.gr.java_conf.falius.util.regex
+jp.gr.java_conf.falius.util.table
 jp.gr.java_conf.falius.util.timer
 jp.gr.java_conf.falius.util.tree
