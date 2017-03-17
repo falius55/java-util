@@ -6,6 +6,12 @@ tasks.withType(JavaCompile) {
   options.encoding = defaultEncoding
 }
 
+javadoc {
+    destinationDir = file "doc/javadoc"
+    options.encoding = defaultEncoding
+    options.links << 'http://docs.oracle.com/javase/jp/8/api'
+}
+
 repositories {
     jcenter()
 }
