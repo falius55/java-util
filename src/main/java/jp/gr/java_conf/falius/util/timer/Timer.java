@@ -4,43 +4,63 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>
+ * startメソッドの呼び出しからendメソッドの呼び出しまでにかかった時間を保持するクラスです。
+ * @author "ymiyauchi"
+ *
+ */
 public class Timer {
-    private final Map<String, Data> dataMap;
-    private final BigDecimal MILLIS_NANOS = new BigDecimal(1000000);
-    public Timer() {
-        this.dataMap = new HashMap<String, Data>();
-    }
+    private static final BigDecimal MILLIS_NANOS = new BigDecimal(1000000);
+    private static final BigDecimal SECOND_NANOS = new BigDecimal(1000000000);
+
+    private final Map<String, Data> mDataMap = new HashMap<>();
+    private final Map<String, Long> mResult = new HashMap<>();
+
     public void start(String label) {
-        dataMap.put(label, new Data(label));
+        mDataMap.put(label, new Data());
     }
+
     public void end(String label) {
-        long timeNanos = dataMap.get(label).end();
-        System.out.printf("%s:%sミリ秒%n",label,format(timeNanos));
+        long timeNanos = mDataMap.get(label).end();
+        mResult.put(label, timeNanos);
     }
-    private String format(long nanos) {
-        BigDecimal bd = new BigDecimal(nanos);
+
+    public long getNanos(String label) {
+        return mResult.get(label);
+    }
+
+    public long getMillis(String label) {
+        long timeNanos = mResult.get(label);
+        BigDecimal bd = new BigDecimal(timeNanos);
         BigDecimal result = bd.divide(MILLIS_NANOS);
-        return result.toPlainString();
+        return result.longValue();
     }
+
+    public int getSecond(String label) {
+        long timeNanos = mResult.get(label);
+        BigDecimal bd = new BigDecimal(timeNanos);
+        BigDecimal result = bd.divide(SECOND_NANOS);
+        return result.intValue();
+    }
+
     public static void main(String args[]) {
         Timer timer = new Timer();
         timer.start("test");
         timer.end("test");
-        long start = System.nanoTime();
-        long end = System.nanoTime();
-        System.out.println(end - start);
+        long resultNanos = timer.getNanos("test");
+        System.out.println(resultNanos);
     }
 
     public static class Data {
-        private final long start;
-        private final String label;
-        private Data(String label) {
-            this.label = label;
-            this.start = System.nanoTime();
+        private final long mStart;
+
+        private Data() {
+            mStart = System.nanoTime();
         }
 
         private long end() {
-            return System.nanoTime() - start;
+            return System.nanoTime() - mStart;
         }
     }
 }
