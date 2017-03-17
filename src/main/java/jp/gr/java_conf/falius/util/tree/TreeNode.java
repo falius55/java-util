@@ -4,9 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public interface TreeNode<E> {
-
-    void addChild(E child);
+public interface TreeNode<E> extends Iterable<TreeNode<E>> {
 
     E getElem();
 
@@ -14,5 +12,7 @@ public interface TreeNode<E> {
 
     TreeNode<E> getParent();
 
-    Set<? extends TreeNode<E>> find(Predicate<TreeNode<E>> func);
+    TreeNode<E> find(Predicate<TreeNode<E>> func);
+
+    Set<TreeNode<E>> findAll(Predicate<TreeNode<E>> func);
 }
