@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
  *  <p>newInstance()とmatch()を使用して正規表現とターゲット文字列を渡すことでマッチングを行います<br>
  *  find(int)でマッチ箇所を選択し、group(int)によって該当文字列を取り出すことができます
  *  <p>正規表現はスラッシュで囲んだ文字列によって表されます   例:"/a (pen)\\./"
+ *
  *  <table summary="使用の流れ">
  *  <thead><tr><th colspan="3">基本的な使用の流れ("sample test sample regex"から"sample test"と"sample regex"に正規表現をマッチさせ、後者から"regex"をグルーピングで取り出す)</th></tr></thead>
  *  <tfoot><tr><td colspan="3">各段階の結果をキャッシュする必要がなければ、メソッドチェーンの形で利用すると便利でしょう。{@code String result = Regex.newInstance("sample test sample regex").match("/sample (\\S+)/").find(1).group(1);}</td><tr></tfoot>
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
  *  <tr><td>3</td><td>{@code Regex.Data data = reg.find(1);}</td><td>マッチ箇所が複数あれば、find(int)で選択する。この例ではふたつ目のマッチ箇所("sample regex")を選択している // Regex.Dataインターフェイスを実装した内部クラスが取り出される</td></tr>
  *  <tr><td>4</td><td>{@code String result = data.group(1);}</td><td>group(int)で文字列を取り出す。ひとつ目のグループなので１を渡している // resultに"regex"が入る</td></tr>
  *  </table>
+ *
  *  <p>引数の正規表現とターゲット文字列は順不同で渡すことができます<br>
  *  例:{@code Regex.newInstance("this is a pen.").match("/a (pen)\\./")}と{@code Regex.newInstance("/a (pen)\\./").match("this is a pen.")}に違いはありません
  *  <p>Dataオブジェクトではなく、Regexオブジェクトが直接持つgroup(int)は正規表現を"/regex/g"の形にしたかどうかで戻り値が変化します
@@ -65,7 +67,8 @@ import java.util.regex.Pattern;
  * }</pre>
  */
 public class Regex implements Iterable<String> {
-    // ひとつの正規表現に対してmatch()によって異なる対象文字列を次々マッチさせていくという使い方を可能にするため、可変オブジェクトにしている
+    // ひとつの正規表現に対してmatch()によって異なる対象文字列を次々マッチさせていくという使い方を可能にするため、
+    // 可変オブジェクトにしている
     // そのため、Mapなどのkeyとしては不適
     // マルチスレッドでのインスタンス共有も不適
     private Pattern pattern_ = null;
@@ -86,7 +89,7 @@ public class Regex implements Iterable<String> {
         slashMatcher_ = slashPattern_.matcher("");
     }
 
-    private Regex(String regex,String target, int patternFlag, boolean isOptionG) {
+    private Regex(String regex, String target, int patternFlag, boolean isOptionG) {
         this.regex_ = regex;
         this.target_ = target;
         this.isOptionG_ = isOptionG;
@@ -96,7 +99,7 @@ public class Regex implements Iterable<String> {
     // 正規表現文字列を解析して、結果をマップで返す
     // 正規表現の形式になっていなければnullを返す
     // ^/(.+)/([gimsudxl]*)$
-    private static Map<String,String> splitStringRegex(CharSequence regexOrTarget) {
+    private static Map<String, String> splitStringRegex(CharSequence regexOrTarget) {
         Objects.requireNonNull(regexOrTarget, "regexOrTarget is null");
 
         slashMatcher_.reset(regexOrTarget);
@@ -458,7 +461,7 @@ public class Regex implements Iterable<String> {
 
     /**
      *  ターゲット文字列の１文字目から末尾までの全体が正規表現にマッチしているかどうかの真偽値を返す静的メソッドです
-     *  正規表現の両端に^と$を付与した場合のtest(regexOrTarget,targetOrRegex)と同義となります
+     *  正規表現の両端に^と$を付与した場合のtest(regexOrTarget, targetOrRegex)と同義となります
      *  オプション指定は埋め込みフラグを利用してください
      *  引数は順不同です
      *  @param  regexOrTarget   スラッシュで囲まれた正規表現、あるいはターゲット文字列
@@ -735,458 +738,4 @@ public class Regex implements Iterable<String> {
             return data.iterator();
         }
     }
-
-
-    // 以下はテストコード
-    /*
-    public static void main(String[] args) {
-        // Regexインスタンスに直接group()を使用した場合
-        // 調査対象文字列は一度だけ渡し、正規表現を複数回渡すことで調査対象文字列を使いまわす
-        System.out.println(testAll_RegexGroup_recycleTarget("this is an apple. I am hungry. this is a pen. I should study." // target
-                    , new String[]{"/this is (a|an) \\S+\\./","/[^\\.]+\\./g","/i[^y.]*y/gi"} // regexes
-                    , new String[][]{{"this is an apple.","an"},{"this is an apple."," I am hungry."," this is a pen."," I should study."},{"I am hungry","I should study"}} // expected
-                    ));
-
-        // find()してからのgroup()
-        // 正規表現は一度だけ渡し、調査対象文字列は複数回渡すことで正規表現を使いまわす
-        System.out.println(testAll_DataGroup_recycleRegex("/this is (a|an) (\\S+)\\./" // regex
-                    , new String[]{"this is an apple. this is a pen.","this is a cup. this is a smartphone."} // targets
-                    , new String[][][]{{{"this is an apple.","an","apple"},{"this is a pen.","a","pen"}},{{"this is a cup.","a","cup"},{"this is a smartphone.","a","smartphone"}}} // expected
-                    ));
-
-        // newInstanceに正規表現と調査対象文字列を同時に渡す
-        // また、正規表現と調査対象文字列が順不同であることも同時に確認
-        System.out.println(testAll_OnceNewInstance_DataGroup("/this is (a|an) (\\S+)\\./" // regex
-                    , "this is an apple. I am hungry. this is a pen. I should study." // target
-                    , new String[][]{{"this is an apple.","an","apple"},{"this is a pen.","a","pen"}} // expected
-                    ));
-
-        // group(),find().group()すべてを確認
-        System.out.println(testAll_Both_Regex(
-                    Regex.newInstance("/'(\\S+) (green)'/g").match("there are many colors. I like 'lite green','yellow green' and 'dark green'.") // Regex reg
-                    , new String[]{"'lite green'","'yellow green'","'dark green'"} // expected_regex
-                    , new String[][]{{"'lite green'","lite","green"},{"'yellow green'","yellow","green"},{"'dark green'","dark","green"}} // expected_data
-                    ));
-
-        // メソッドチェーン
-        // 1:newInstance()に正規表現を渡してインスタンスを作成
-        // 2:match()にターゲット文字列を渡してマッチング
-        // 3:find(2)でインデックスが２(０から始まるので３番目)の部分文字列を扱うDataオブジェクトを取得
-        // 4:group(1)で１つ目のグループの文字列を取得
-        // 結果として、"dark"を取得する
-        System.out.println(
-                Regex.newInstance("/'(\\S+) (green)'/g").match("there are many colors. example,'lite green','orange red','yellow green','sky blue' and 'dark green'.").find(2).group(1).equals("dark")
-                );
-
-        System.out.println("-----------------------------------------------------------");
-        // test()
-        System.out.println("test()");
-        System.out.println(Regex.newInstance("there are many greens. I like 'lite green','yellow green' and 'dark green'.","/yellow green/").test());
-        System.out.println(Regex.newInstance("there are many greens. I like 'lite green','yellow green' and 'dark green'.").match("/\\S+ green'/").find(1).test()); // ２つ目のマッチ文字列が存在する
-        try {
-            System.out.println(Regex.newInstance("there are many greens. I like 'lite green','yellow green' and 'dark green'.").match("/\\S+ green'/").find(3).test()); // ４つ目のマッチ文字列が存在しない
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("ここでは例外発生が正しい");
-            e.printStackTrace();
-        }
-        System.out.println(Regex.test("there are many greens. I like 'lite green','yellow green' and 'dark green'.","/yellow green/"));
-
-        System.out.println("-----------------------------------------------------------");
-        // matches()
-        System.out.println("matches()");
-        System.out.println(Regex.newInstance("Test","/t.st/i").matches());
-        System.out.println(!Regex.newInstance("tTest","/t.st/i").matches()); // falseが正しいので反転
-        System.out.println(Regex.newInstance("tTest","/t.st/i").test()); // 同様の組み合わせでも、test()ならtrue
-        System.out.println(Regex.matches("Test","/(?i)t.st/"));
-
-        System.out.println("-----------------------------------------------------------");
-        // option
-        System.out.println("option");
-        // gi
-        System.out.println(testAll_OnceNewInstance(
-                    "/(tes)t/gi" // regex
-                    , "testTestTESTtEst" // target
-                    , new String[]{"test","Test","TEST","tEst"} // expected_regex
-                    , new String[][]{{"test","tes"},{"Test","Tes"},{"TEST","TES"},{"tEst","tEs"}} // expected_data
-                    ));
-        // inner flag
-        System.out.println(testAll_OnceNewInstance(
-                    "/(?i)(tes)t/g" // regex
-                    , "testTestTESTtEst" // target
-                    , new String[]{"test","Test","TEST","tEst"} // expected_regex
-                    , new String[][]{{"test","tes"},{"Test","Tes"},{"TEST","TES"},{"tEst","tEs"}} // expected_data
-                    ));
-        // multiline
-        System.out.println(testAll_OnceNewInstance(
-                    "/^this is (a|an) (\\S+)\\./m" // regex
-                    , "this is an apple. I am hungry. this is a orage. this is a pen. I should study.I do not study.\\nthis is a computergame." // target
-                    , new String[]{"this is an apple.","an","apple"} // expected_regex
-                    , new String[][]{{"this is an apple.","an","apple"},{"this is a computergame.","a","computergame"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/(?m)^this is (a|an) (\\S+)\\./" // regex
-                    , "this is an apple. I am hungry. this is a orage. this is a pen. I should study.I do not study.\\nthis is a computergame." // target
-                    , new String[]{"this is an apple.","an","apple"} // expected_regex
-                    , new String[][]{{"this is an apple.","an","apple"},{"this is a computergame.","a","computergame"}} // expected_data
-                    ));
-        // DOTALL
-        System.out.println(testAll_OnceNewInstance(
-                    "/this.(is an)/s" // regex
-                    , "this\nis an apple." // target
-                    , new String[]{"this\nis an","is an"} // expected_regex
-                    , new String[][]{{"this\nis an","is an"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/(?s)this.(is an)/" // regex
-                    , "this\nis an apple." // target
-                    , new String[]{"this\nis an","is an"} // expected_regex
-                    , new String[][]{{"this\nis an","is an"}} // expected_data
-                    ));
-        // Unixラインモード
-        System.out.println(!testAll_OnceNewInstance( // falseとなるのが正しいので、!で反転させている
-                    "/very$/gdm" // regex
-                    , "very\r\ngood" // target // \r\nが改行として認識されないので、multilineモードでも$が適用されず、マッチしない
-                    , new String[]{"very"} // expected_regex
-                    , new String[][]{{"very"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/very$/gdm" // regex
-                    , "very\ngood" // target
-                    , new String[]{"very"} // expected_regex
-                    , new String[][]{{"very"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/(?d)very$/gm" // regex
-                    , "very\ngood" // target
-                    , new String[]{"very"} // expected_regex
-                    , new String[][]{{"very"}} // expected_data
-                    ));
-        // パターン内で空白とコメントを使用
-        System.out.println(testAll_OnceNewInstance(
-                    "/^#行頭から始まる\ng\\S+ #gから始まる単語\n$#ここが行末/gmx" // regex
-                    , "red\nblue\ngreen\ngrey\ngold\norange\nbrown" // target
-                    , new String[]{"green","grey","gold"} // expected_regex
-                    , new String[][]{{"green"},{"grey"},{"gold"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/(?x)^#行頭から始まる\ng\\S+ #gから始まる単語\n$#ここが行末/gm" // regex
-                    , "red\nblue\ngreen\ngrey\ngold\norange\nbrown" // target
-                    , new String[]{"green","grey","gold"} // expected_regex
-                    , new String[][]{{"green"},{"grey"},{"gold"}} // expected_data
-                    ));
-        // Unicodeに準拠した大文字と小文字を区別しない
-        System.out.println(testAll_OnceNewInstance(
-                    "/^ｇ\\S+$/gmui" // regex uオプションはiオプションと一緒に指定する必要がある
-                    , "ｒＥｄ\nｂｌｕＥ\nＧＲＥＥＮ\nＧＲＥｙ\nｇｏｌｄ\nｏｒａＮｇＥ\nｂＲＯｗＮ" // target
-                    , new String[]{"ＧＲＥＥＮ","ＧＲＥｙ","ｇｏｌｄ"} // expected_regex
-                    , new String[][]{{"ＧＲＥＥＮ"},{"ＧＲＥｙ"},{"ｇｏｌｄ"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/(?u)(?i)^ｇ\\S+$/gm" // regex uオプションはiオプションと一緒に指定する必要がある
-                    , "ｒＥｄ\nｂｌｕＥ\nＧＲＥＥＮ\nＧＲＥｙ\nｇｏｌｄ\nｏｒａＮｇＥ\nｂＲＯｗＮ" // target
-                    , new String[]{"ＧＲＥＥＮ","ＧＲＥｙ","ｇｏｌｄ"} // expected_regex
-                    , new String[][]{{"ＧＲＥＥＮ"},{"ＧＲＥｙ"},{"ｇｏｌｄ"}} // expected_data
-                    ));
-        // パターンのリテラル構文解析を有効にする
-        System.out.println(!testAll_OnceNewInstance( // falseとなるのが正しいので、!で反転させている
-                    "/^g\\S+$/gml" // regex
-                    , "red\nblue\ngreen\ngrey\ngold\norange\nbrown" // target
-                    , new String[]{"green","grey","gold"} // expected_regex
-                    , new String[][]{{"green"},{"grey"},{"gold"}} // expected_data
-                    ));
-        System.out.println(testAll_OnceNewInstance(
-                    "/^g\\S+$/glm" // regex
-                    , "red\nblue\n^g\\S+$grey\ngold\n^g\\S+$\nbrown" // target
-                    , new String[]{"^g\\S+$","^g\\S+$"} // expected_regex
-                    , new String[][]{{"^g\\S+$"},{"^g\\S+$"}} // expected_data
-                    ));
-
-        System.out.println("-----------------------------------------------------------");
-        // ゲッター、セッター、has系メソッド
-        System.out.println("getter, setter, has*()");
-        System.out.println(Regex.newInstance("/this [^.]+\\./","this is an apple. this is a pen.").getTarget().equals("this is an apple. this is a pen."));
-        System.out.println(Regex.newInstance("/this [^.]+\\./","this is an apple. this is a pen.").getRegex().equals("this [^.]+\\."));
-        System.out.println(Regex.newInstance("/this [^.]+\\./g","this is an apple. this is a pen.").hasOptionG());
-        System.out.println(Regex.newInstance("/(tes)t/gi","testTestTESTtEst").hasOptionI());
-        System.out.println(Regex.newInstance("/^this is (a|an) (\\S+)\\./m","this is an apple. I am hungry. this is a orage. this is a pen. I should study.I do not study.\\nthis is a computergame.").hasOptionM());
-        System.out.println(Regex.newInstance("/this.(is an)/s","this\nis an apple.").hasOptionS());
-        System.out.println(Regex.newInstance("/very$/gdm","very\ngood").hasOptionD());
-        System.out.println(Regex.newInstance("/^#行頭から始まる\ng\\S+ #gから始まる単語\n$#ここが行末/gmx","red\nblue\ngreen\ngrey\ngold\norange\nbrown").hasOptionX());
-        System.out.println(Regex.newInstance("/^g\\S+$/gl","red\nblue\n^g\\S+$grey\ngold\n^g\\S+$\nbrown").hasOptionL());
-
-        System.out.println("-----------------------------------------------------------");
-        // error
-        // 例外が出るのが正しいのでこのまま続行する
-        System.out.println("例外テスト");
-        try {
-            System.out.println(Regex.newInstance("SampleSAMPLESIMPLE","sample/i").find(0).group());
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println(Regex.newInstance("SampleSAMPLESIMPLE","/sample/i").find(2).group(0));
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println(Regex.newInstance("SampleSAMPLESIMPLE").matchCount());
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println(Regex.newInstance("/SampleSAMPLESIMPLE/").find(0).group(2));
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println(Regex.newInstance("SampleSAMPLESIMPLE").match("/sample/gi").group(2));
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("-----------------------------------------------------------");
-        // Iterator
-        System.out.println("iterator");
-        // gオプション
-        System.out.println(test_foreach(
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/sample/gi"),
-                    new String[]{"Sample","SAMPLE","sample","SaMpLe"}
-                    ));
-        // gオプションなし
-        System.out.println(test_foreach(
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/(s)(a)(m)(p)(l)(e)/i"),
-                    new String[]{"Sample","S","a","m","p","l","e"}
-                    ));
-        // Dataのイテレート
-        System.out.println(test_foreach_nestClass(
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/(s)(a)(m)(p)(l)(e)/gi").find(3),
-                    new String[]{"SaMpLe","S","a","M","p","L","e"}
-                    ));
-        // 範囲外Dataのイテレート
-        try {
-        System.out.println(test_foreach_nestClass(
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/(s)(a)(m)(p)(l)(e)/gi").find(4),
-                    new String[]{}
-                    ));
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("ここでは例外発生が正常");
-            e.printStackTrace();
-        }
-        // ３つ目のグループをイテレート
-        System.out.println(test_foreach_group(
-                    3,
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/(s)(a)(m)(p)(l)(e)/gi"),
-                    new String[]{"m","M","m","M"}
-                    ));
-        // グループイテレートにgオプションの有無は関係ない
-        System.out.println(test_foreach_group(
-                    3,
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/(s)(a)(m)(p)(l)(e)/i"),
-                    new String[]{"m","M","m","M"}
-                    ));
-        // groupIterator(0)のイテレートはgオプションありと同じ結果
-        System.out.println(test_foreach_group(
-                    0,
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/sample/i"),
-                    new String[]{"Sample","SAMPLE","sample","SaMpLe"}
-                    ));
-        // iteratorを取り出して直接使用(group)
-        System.out.println(test_groupIterator(
-                    1,
-                    Regex.newInstance("SampleSAMPLEsampleSaMpLe").match("/s(amp)le/i"),
-                    new String[]{"amp","AMP","amp","aMp"}
-                    ));
-
-        System.out.println("-----------------------------------------------------------");
-
-        timer.Timer timer = new timer.Timer();
-        timer.start("test");
-        timer.end("test");
-        timer.start("new");
-        Regex.newInstance("SampleSAMPLESIMPLE","/sample/i").find(0).group();
-        timer.end("new");
-        Regex reg = Regex.newInstance("SampleSAMPLESIMPLE");
-        timer.start("match");
-        String res = reg.match("/sample/i").find(0).group();
-        timer.end("match");
-        timer.start("get");
-        res = reg.find(0).group();
-        timer.end("get");
-
-    }
-
-    private static boolean test_groupIterator(int index, Regex reg, String[] expected) {
-        int counter = 0;
-        for (Iterator<String> i = reg.groupIterator(index); i.hasNext(); counter++) {
-            String result = i.next();
-            if (!result.equals(expected[counter])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean test_foreach(Regex reg, String[] expected) {
-        int counter = 0;
-        for (String result : reg) {
-            if (!result.equals(expected[counter])) {
-                return false;
-            }
-            counter++;
-        }
-        if (counter == expected.length) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    private static boolean test_foreach_group(int index, Regex reg, String[] expected) {
-        int counter = 0;
-        for (String result : reg.groupIterator(index)) {
-            if (!result.equals(expected[counter])) {
-                return false;
-            }
-            counter++;
-        }
-        if (counter == expected.length) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    private static boolean test_foreach_nestClass(Regex.Data data, String[] expected) {
-        int counter = 0;
-        for (String result : data) {
-            if (!result.equals(expected[counter])) {
-                return false;
-            }
-            counter++;
-        }
-        if (counter == expected.length) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    private static boolean testAll_Both_Regex(Regex reg,String[] expected_regex,String[][] expected_data) {
-        if (!testAll_RegexGroup(reg,expected_regex)) {
-            // System.out.println("false in testAll_Both_Regex");
-            return false;
-        }
-        if (!testAll_DataGroup(reg,expected_data)) {
-            // System.out.println("false in testAll_Both_Regex");
-            return false;
-        }
-        return true;
-    }
-    private static boolean testAll_OnceNewInstance(String regex, String target, String[] expected_regex, String[][] expected_data) {
-        if (!testAll_OnceNewInstance_RegexGroup(regex,target,expected_regex)) {
-            // System.out.println("false in testAll_OnceNewInstance");
-            return false;
-        }
-        if (!testAll_OnceNewInstance_DataGroup(regex, target, expected_data)) {
-            // System.out.println("false in testAll_OnceNewInstance");
-            return false;
-        }
-        return true;
-    }
-    private static boolean testAll_OnceNewInstance_RegexGroup(String regex, String target, String[] expected) {
-        Regex reg = Regex.newInstance(target,regex);
-        // System.out.println(reg);
-        return testAll_RegexGroup(reg, expected);
-    }
-    private static boolean testAll_OnceNewInstance_DataGroup(String regex, String target, String[][] expected) {
-        Regex reg = Regex.newInstance(target,regex);
-        if (!testAll_DataGroup(reg,expected)) {
-            // System.out.println("false in testAll_OnceNewInstance_DataGroup");
-            return false;
-        }
-        Regex reg2 = Regex.newInstance(regex,target);
-        if (!testAll_DataGroup(reg2,expected)) {
-            // System.out.println("false in testAll_OnceNewInstance_DataGroup");
-            return false;
-        }
-        return true;
-    }
-    private static boolean testAll_RegexGroup_recycleTarget(String target, String[] regexes, String[][] expected) {
-        Regex regex = Regex.newInstance(target);
-        for (int i = 0; i < regexes.length; i++) {
-            regex.match(regexes[i]); // 正規表現の変更
-            if(!testAll_RegexGroup(regex,expected[i])){
-                // System.out.println("false in testAll_RegexGroup_recycleTarget");
-                return false;
-            }
-        }
-        return true;
-    }
-    private static boolean testAll_RegexGroup(Regex reg, String[] expected) {
-        if (!reg.test()) {
-            return false;
-        }
-        if (reg.groupCount() != expected.length) {
-            return false;
-        }
-        for (int i = 0,len = reg.groupCount(); i < len; i++) {
-            if (!reg.group(i).equals(expected[i])) {
-                // System.out.println("false in testAll_RegexGroup");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean testAll_DataGroup_recycleRegex(String regex, String[] targets, String[][][] expected) {
-        Regex reg = Regex.newInstance(regex);
-        for (int i = 0,len = targets.length; i < len; i++) {
-            reg.match(targets[i]); // 調査対象文字列の変更
-            if (!testAll_DataGroup(reg, expected[i])) {
-                // System.out.println("false in testAll_DataGroup_recycleRegex");
-                return false;
-            }
-        }
-        if (!reg.test()) {
-            return false;
-        }
-        return true;
-    }
-    private static boolean testAll_DataGroup(Regex reg, String[][] expected) {
-        for (int i = 0,len = reg.matchCount(); i < len; i++) {
-            if (!testAll_DataGroup(reg.find(i),expected[i])) {
-                // System.out.println("false in testAll_DataGroup");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean testAll_DataGroup(Regex.Data data, String[] expected) {
-        if (data.size() != expected.length) {
-            return false;
-        }
-        for (int i = 0,len = data.size(); i < len; i++) {
-            if (!data.group(i).equals(expected[i])) {
-                // System.out.println("false in testAll_DataGroup2");
-                // System.out.println("expected:"+ formatArray(expected) + ",result:"+ data.toString());
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static String formatArray(String[] array) {
-        StringBuilder sb = new StringBuilder("[");
-
-        for (int i=0,len=array.length; i<len; i++) {
-            if (i != 0) {
-                sb.append(",");
-            }
-            sb.append("\"");
-            sb.append(array[i]);
-            sb.append("\"");
-        }
-        sb.append("]");
-
-        return sb.toString();
-    }
-    */
 }
