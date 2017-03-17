@@ -148,7 +148,7 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
                 String.format("invalid index %d : out of %d entries", index, mEntries.size()));
     }
 
-    public static class EntryIterator<E> implements Iterator<E> {
+    private static class EntryIterator<E> implements Iterator<E> {
         private final CheckList<E> mOuter;
         private int nextIndex = 0;
 

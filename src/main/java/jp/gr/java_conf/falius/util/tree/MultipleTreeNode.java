@@ -104,7 +104,7 @@ public class MultipleTreeNode<E> implements TreeNode<E> {
         return null;
     }
 
-    public static class TreeIterator<E> implements Iterator<TreeNode<E>> {
+    private static class TreeIterator<E> implements Iterator<TreeNode<E>> {
 
         private MultipleTreeNode<E> mNext;
 
