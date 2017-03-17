@@ -134,6 +134,7 @@ public final class DateTime implements Comparable<DateTime> {
 
     /**
      * 経過日数を計算します。引数は順不同です
+     * 戻り値は必ず０以上の整数になります。
      *
      * @param start
      * @param end
