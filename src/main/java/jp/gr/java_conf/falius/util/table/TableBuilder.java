@@ -14,7 +14,7 @@ import java.util.Set;
  * データを格納し、表を作成するクラス
  * {@code
  * // コンストラクタに列名を渡してインスタンスを作成
- * TableBuilder tb = new TableBuilder("名前","性別","年齢");
+ * TableBuilder tb = new TableBuilder("名前","性別","年齢", "イニシャル");
  * // insert(String)で挿入行を指定して内部クラスのインスタンスを取得
  * // さらに続けてadd(String, Object)で挿入行とデータを渡す
  * tb.insert("Anna")
@@ -62,7 +62,7 @@ public class TableBuilder {
      */
     public TableBuilder(String firstColumn, String... column) {
         mDataMap = new HashMap<>();
-        this.mFirstColumn = firstColumn;
+        mFirstColumn = firstColumn;
         mColumns = new ArrayList<>();
         mColumns.add(firstColumn);
         mColumns.addAll(Arrays.asList(column));
@@ -106,7 +106,8 @@ public class TableBuilder {
      * 指定行のインデックスで指定された列にデータを追加します
      * 一列目のデータを変更しても、insert(String)に使用するキーは変わりません
      *
-     * @param rowTitleObj 追加行の識別名を文字列表現として持つオブジェクト。初めて挿入する識別名なら自動的に一列目のデータとして挿入される
+     * @param rowTitleObj 追加行の識別名を文字列表現として持つオブジェクト。
+     *     初めて挿入する識別名なら自動的に一列目のデータとして挿入される
      * @param columnIndex 追加する列のインデックス(０なら一列目)
      * @param data        追加するデータ
      * @return 指定された行へのデータ挿入を請け負う内部クラスのインスタンス
@@ -208,10 +209,6 @@ public class TableBuilder {
         }
     }
 
-    private void columnEach(String column, Consumer<Object> func) {
-        columnEach(column, func, false);
-    }
-
     private interface Consumer<T> {
         void accept(T arg);
     }
@@ -250,47 +247,20 @@ public class TableBuilder {
         return ret.toString();
     }
 
-    public static void main(String[] arg) {
-        Object alex = new Object() {
-            String name = "Alex";
-
-            @Override
-            public String toString() {
-                return name;
-            }
-        };
-        TableBuilder tb = new TableBuilder("名前", "性別", "年齢", "イニシャル");
-        tb.insert("Anna")
-                .add("性別", "女")
-                .add("年齢", 16);
-        tb.insert("Alex")
-                .add("性別", "男")
-                .add("年齢", 21);
-        tb.insert("Kai")
-                .add(1, "男")
-                .add(2, 12)
-                .add(0, "カイ");
-
-        tb.insert("Anna").add(3, 'A');
-        tb.insert(alex).add("イニシャル", "A");
-        tb.insert("Kai").add(3, 'K');
-        tb.print();
-    }
-
     /**
      * データ挿入を請け負うクラス
      */
     public static class InsertAgency {
-        private List<String> columnTitles;
-        private Map<String, Object> row;
+        private List<String> mColumnTitles;
+        private Map<String, Object> mRowData;
 
         /**
          * @param columnTitles 列名のリスト
-         * @param row          追加行の各データのマップ
+         * @param rowData          追加行の各データのマップ
          */
-        private InsertAgency(List<String> columnTitles, Map<String, Object> row) {
-            this.columnTitles = columnTitles;
-            this.row = row;
+        private InsertAgency(List<String> columnTitles, Map<String, Object> rowData) {
+            mColumnTitles = columnTitles;
+            mRowData = rowData;
         }
 
         /**
@@ -302,9 +272,11 @@ public class TableBuilder {
          * @throws IllegalArgumentException インスタンス作成時に設定した列名以外の名前の列に挿入しようとした場合
          */
         public InsertAgency add(String column, Object data) {
-            if (!columnTitles.contains(column))
-                throw new IllegalArgumentException(String.format("列名'%s'はこの表に設定されていません", column));
-            row.put(column, data);
+            if (!mColumnTitles.contains(column)) {
+                throw new IllegalArgumentException(
+                        String.format("列名'%s'はこの表に設定されていません", column));
+            }
+            mRowData.put(column, data);
             return this;
         }
 
@@ -317,7 +289,7 @@ public class TableBuilder {
          * @throws IndexOutOfBoundsException 指定されたインデックスの列が設定されていない場合
          */
         public InsertAgency add(int columnIndex, Object data) {
-            return add(columnTitles.get(columnIndex), data);
+            return add(mColumnTitles.get(columnIndex), data);
         }
     }
 }

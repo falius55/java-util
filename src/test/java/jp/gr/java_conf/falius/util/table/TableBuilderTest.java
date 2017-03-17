@@ -1,7 +1,10 @@
 package jp.gr.java_conf.falius.util.table;
 
+import org.junit.Test;
+
 public class TableBuilderTest {
 
+    @Test
     public void workout() {
         TableBuilder tb = new TableBuilder("名前", "性別", "年齢", "イニシャル");
         // insert(String)で挿入行を指定して内部クラスのインスタンスを取得
