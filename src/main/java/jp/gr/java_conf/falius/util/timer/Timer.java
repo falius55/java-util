@@ -15,33 +15,62 @@ public class Timer {
     private static final BigDecimal SECOND_NANOS = new BigDecimal(1000000000);
 
     private final Map<String, Data> mDataMap = new HashMap<>();
-    private final Map<String, Long> mResult = new HashMap<>();
 
     public void start(String label) {
         mDataMap.put(label, new Data());
     }
 
     public void end(String label) {
-        long timeNanos = mDataMap.get(label).end();
-        mResult.put(label, timeNanos);
+        mDataMap.get(label).end();
     }
 
+    /**
+     *
+     * @param label
+     * @return
+     * @throws IllegalArgumentException まだstartメソッドを実行されていないラベルを渡された場合
+     * @throws IllegalStateException まだendメソッドを実行されていないラベルが引数に渡された場合
+     */
     public long getNanos(String label) {
-        return mResult.get(label);
+        checkOrThrow(label);
+        long nanos = mDataMap.get(label).getNanos();
+        return nanos;
     }
 
+    /**
+     *
+     * @param label
+     * @return
+     * @throws IllegalArgumentException まだstartメソッドを実行されていないラベルを渡された場合
+     * @throws IllegalStateException まだendメソッドを実行されていないラベルが引数に渡された場合
+     */
     public long getMillis(String label) {
-        long timeNanos = mResult.get(label);
+        checkOrThrow(label);
+        long timeNanos = mDataMap.get(label).getNanos();
         BigDecimal bd = new BigDecimal(timeNanos);
         BigDecimal result = bd.divide(MILLIS_NANOS);
         return result.longValue();
     }
 
+    /**
+     *
+     * @param label
+     * @return
+     * @throws IllegalArgumentException まだstartメソッドを実行されていないラベルを渡された場合
+     * @throws IllegalStateException まだendメソッドを実行されていないラベルが引数に渡された場合
+     */
     public int getSecond(String label) {
-        long timeNanos = mResult.get(label);
+        checkOrThrow(label);
+        long timeNanos = mDataMap.get(label).getNanos();
         BigDecimal bd = new BigDecimal(timeNanos);
         BigDecimal result = bd.divide(SECOND_NANOS);
         return result.intValue();
+    }
+
+    private void checkOrThrow(String label) {
+        if (!mDataMap.containsKey(label)) {
+            throw new IllegalArgumentException("no data of label : " + label);
+        }
     }
 
     public static void main(String args[]) {
@@ -54,13 +83,22 @@ public class Timer {
 
     public static class Data {
         private final long mStart;
+        private long mResult = -1;
 
         private Data() {
             mStart = System.nanoTime();
         }
 
         private long end() {
-            return System.nanoTime() - mStart;
+            mResult = System.nanoTime() - mStart;
+            return mResult;
+        }
+
+        private long getNanos() {
+            if (mResult < 0) {
+                throw new IllegalStateException();
+            }
+            return mResult;
         }
     }
 }
