@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import jp.gr.java_conf.falius.util.range.StringRange;
+
 /**
  * <p>
  * データを格納し、表を作成するクラス
@@ -203,7 +205,9 @@ public class TableBuilder {
      * @param includeTitle 処理対象に列名自体まで含めるかどうかを指定する(trueなら含める)
      */
     private void columnEach(String column, Consumer<Object> func, boolean includeTitle) {
-        if (includeTitle) func.accept(column);
+        if (includeTitle) {
+            func.accept(column);
+        }
         for (Map<String, Object> rowData : mDataMap.values()) {
             func.accept(rowData.get(column));
         }
@@ -218,8 +222,7 @@ public class TableBuilder {
      */
     private int length(String str) {
         int length = 0;
-        for (int i = 0; i < str.length(); i++) {
-            String s = str.substring(i, i + 1);
+        for (String s : new StringRange(str)) {
             // 全角文字は３バイトとして出てくるが、長さは半角２文字分
             length += s.getBytes().length == 1 ? 1 : 2;
         }
@@ -243,7 +246,9 @@ public class TableBuilder {
     private String padding(String str, int length, char padChar) {
         StringBuilder ret = new StringBuilder(str);
         int padCount = length - length(str) + 1;
-        for (int i = 0; i < padCount; i++) ret.append(padChar);
+        for (int i = 0; i < padCount; i++) {
+            ret.append(padChar);
+        }
         return ret.toString();
     }
 
