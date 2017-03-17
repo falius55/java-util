@@ -53,14 +53,14 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
      * @param index
      */
     public void check(int index) {
-        Entry<E> entry = find(index);
+        Entry<E> entry = mEntries.get(index);
 
         /*
          * もし要素がIntegerの場合は、プリミティブのintが渡されても
          *     Indexではなく同値オブジェクトを探してチェックをつける。
          * Integerを要素にしているのにindexで要素を指定することは考えづらいので、
          *     おそらくこの方が期待していた動作になるはず。
-         * この際、検索を二度(find(int)とfind(E))行うことになるため効率はよくない。
+         * この際、検索を二度(get(index)とfind(E))行うことになるため効率はよくない。
          */
         if (entry.mElem instanceof Integer) {
             check(Integer.valueOf(index));
@@ -116,14 +116,17 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return ret;
     }
 
+    @Override
     public E get(int index) {
-        return find(index).mElem;
+        return mEntries.get(index).mElem;
     }
 
+    @Override
     public int size() {
         return mEntries.size();
     }
 
+    @Override
     public Iterator<E> iterator() {
         return new EntryIterator<E>(this);
     }
@@ -135,17 +138,6 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
            }
        }
         throw new NoSuchElementException(String.format("%s is not in %s", e, mEntries));
-    }
-
-    private Entry<E> find(int index) {
-        int cnt = 0;
-        for (Entry<E> entry : mEntries) {
-            if (cnt++ == index) {
-                return entry;
-            }
-        }
-        throw new NoSuchElementException(
-                String.format("invalid index %d : out of %d entries", index, mEntries.size()));
     }
 
     private static class EntryIterator<E> implements Iterator<E> {
