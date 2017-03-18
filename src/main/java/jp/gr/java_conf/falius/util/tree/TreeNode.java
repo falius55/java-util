@@ -2,7 +2,6 @@ package jp.gr.java_conf.falius.util.tree;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public interface TreeNode<E> extends Iterable<TreeNode<E>> {
 
@@ -15,4 +14,9 @@ public interface TreeNode<E> extends Iterable<TreeNode<E>> {
     TreeNode<E> find(Predicate<TreeNode<E>> func);
 
     Set<TreeNode<E>> findAll(Predicate<TreeNode<E>> func);
+
+    public interface Predicate<T> {
+
+        public boolean test(T t);
+    }
 }

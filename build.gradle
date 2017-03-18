@@ -3,7 +3,10 @@ apply plugin: 'maven'
 
 def defaultEncoding = 'UTF-8'
 
-tasks.withType(JavaCompile) {
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+tasks.withType(JavaCompile){
   options.encoding = defaultEncoding
 }
 
