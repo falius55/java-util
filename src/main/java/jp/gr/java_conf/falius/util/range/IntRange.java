@@ -78,7 +78,7 @@ public class IntRange implements Iterable<Integer>, Iterator<Integer> {
      * このメソッドはこのオブジェクトをイテレータとして使用するため、内部の状態が変化します。
      * @param runnable
      */
-    public void forEach(Runnable runnable) {
+    public void simpleForEach(Runnable runnable) {
         for (int i : this) {
             runnable.run();
         }
