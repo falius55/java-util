@@ -51,6 +51,11 @@ public class IntRange implements Iterable<Integer>, Iterator<Integer> {
         return this;
     }
 
+    /**
+     * このオブジェクトをイテレータとして使用した際に取得できる値を配列として返します。
+     * このメソッドは内部の状態に影響を与えません。
+     * @return
+     */
     public int[] toArray() {
         int start = mStart;
         int end = mEnd;
@@ -65,5 +70,17 @@ public class IntRange implements Iterable<Integer>, Iterator<Integer> {
             ret[i] = k;
         }
         return ret;
+    }
+
+    /**
+     * 指定回数分処理を繰り返します。
+     * インデックスも必要な場合はIterator#forEachRemainingを利用してください。
+     * このメソッドはこのオブジェクトをイテレータとして使用するため、内部の状態が変化します。
+     * @param runnable
+     */
+    public void forEach(Runnable runnable) {
+        for (int i : this) {
+            runnable.run();
+        }
     }
 }
