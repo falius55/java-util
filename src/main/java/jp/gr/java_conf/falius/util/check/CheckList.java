@@ -23,7 +23,7 @@ import java.util.Set;
 public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
     private final List<Entry<E>> mEntries = new ArrayList<>();
 
-    public CheckList(Collection<E> elems) {
+    public CheckList(Iterable<E> elems) {
         for (E elem : elems) {
             mEntries.add(new Entry<E>(elem));
         }
@@ -161,7 +161,7 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
 
     private static class Entry<E> {
         private final E mElem;
-        private boolean mIsChecked = false;
+        private volatile boolean mIsChecked = false;
 
         private Entry(E elem) {
             mElem = elem;
@@ -285,12 +285,18 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
 
     @Override
     public ListIterator<E> listIterator() {
-        throw new UnsupportedOperationException();
+        @SuppressWarnings("unchecked")
+        E[] array = (E[]) toArray();
+        List<E> list = Arrays.asList(array);
+        return list.listIterator();
     }
 
     @Override
     public ListIterator<E> listIterator(int index) {
-        throw new UnsupportedOperationException();
+        @SuppressWarnings("unchecked")
+        E[] array = (E[]) toArray();
+        List<E> list = Arrays.asList(array);
+        return list.listIterator(index);
     }
 
     @SuppressWarnings("unchecked")
