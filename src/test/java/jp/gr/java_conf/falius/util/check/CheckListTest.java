@@ -164,4 +164,19 @@ public class CheckListTest {
             assertTrue(nonCheckedSet.contains(elem));
         }
     }
+
+    @Test
+    public void testCheckInteger() {
+        CheckList<Integer> list = new CheckList<>(0, 1, 2);
+        list.check(1);
+        assertThat(list.isChecked(1), is(true));
+    }
+
+    @Test
+    public void testCheckInteger2() {
+        CheckList<Integer> list = new CheckList<>(0, 2, 8, 1, 13, 3);
+        list.check(1);
+        assertThat(list.isChecked(2), is(false));
+        assertThat(list.isChecked(1), is(true));
+    }
 }

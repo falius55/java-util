@@ -36,6 +36,10 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
 
     @Override
     public void check(E e) {
+        checkObject(e);
+    }
+
+    private void checkObject(E e) {
         Entry<E> entry = find(e);
         entry.mIsChecked = true;
     }
@@ -63,7 +67,8 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
          * この際、検索を二度(get(index)とfind(E))行うことになるため効率はよくない。
          */
         if (entry.mElem instanceof Integer) {
-            check(Integer.valueOf(index));
+            E elem = find(Integer.valueOf(index)).mElem;
+            checkObject(elem);
             return;
         }
 
@@ -131,12 +136,12 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return new EntryIterator<E>(this);
     }
 
-    private Entry<E> find(E e) {
-       for (Entry<E> entry : mEntries) {
-           if (entry.mElem.equals(e)) {
-               return entry;
-           }
-       }
+    private Entry<E> find(Object e) {
+        for (Entry<E> entry : mEntries) {
+            if (entry.mElem.equals(e)) {
+                return entry;
+            }
+        }
         throw new NoSuchElementException(String.format("%s is not in %s", e, mEntries));
     }
 
