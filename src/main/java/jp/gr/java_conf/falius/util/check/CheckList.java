@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -23,7 +22,7 @@ import java.util.Set;
 public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
     private final List<Entry<E>> mEntries = new ArrayList<>();
 
-    public CheckList(Collection<E> elems) {
+    public CheckList(Iterable<E> elems) {
         for (E elem : elems) {
             mEntries.add(new Entry<E>(elem));
         }
@@ -34,6 +33,9 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         this(Arrays.asList(elems));
     }
 
+    /**
+     * @throws IllegalArgumentException 存在しない要素が渡された場合
+     */
     @Override
     public void check(E e) {
         Entry<E> entry = find(e);
@@ -43,33 +45,19 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
     /**
      * <p>
      * 追加された順序であるインデックスで要素を指定してチェックをつけます。<br>
-     * <p>
-     * 注意：<br>
-     * 要素がIntegerの場合のみcheck(E e)に委譲され、同値のオブジェクトにチェックがつけられます
-     *     (そのためインデックスによる指定はできません。また、型パラメータではなく要素オブジェクト自体の型によって
-     *     判断されますので、型パラメータがNumberなどIntegerの基底型の場合は注意が必要となります)。
-     *     その場合は対象オブジェクトの検索が二度行われることになるため、効率が求められる際はintではなく直接Integerを
-     *     引数に渡すようにしてください。
      * @param index
+     * @throws IndexOutOfBoundsException indexが範囲外の場合
      */
-    public void check(int index) {
+    public void checkByIndex(int index) {
         Entry<E> entry = mEntries.get(index);
-
-        /*
-         * もし要素がIntegerの場合は、プリミティブのintが渡されても
-         *     Indexではなく同値オブジェクトを探してチェックをつける。
-         * Integerを要素にしているのにindexで要素を指定することは考えづらいので、
-         *     おそらくこの方が期待していた動作になるはず。
-         * この際、検索を二度(get(index)とfind(E))行うことになるため効率はよくない。
-         */
-        if (entry.mElem instanceof Integer) {
-            check(Integer.valueOf(index));
-            return;
-        }
-
         entry.mIsChecked = true;
     }
 
+    /**
+     * 指定した要素にチェックが付いているかどうかを返します。
+     * @param e
+     * @return
+     */
     public boolean isChecked(E e) {
         Entry<E> entry = find(e);
         return entry.mIsChecked;
@@ -116,11 +104,18 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return ret;
     }
 
+    /**
+     * 指定されたインデックスの要素を返します。
+     * @throws IndexOutOfBoundsException インデックスが範囲外の場合
+     */
     @Override
     public E get(int index) {
         return mEntries.get(index).mElem;
     }
 
+    /**
+     * 要素数を返します。
+     */
     @Override
     public int size() {
         return mEntries.size();
@@ -131,13 +126,13 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return new EntryIterator<E>(this);
     }
 
-    private Entry<E> find(E e) {
-       for (Entry<E> entry : mEntries) {
-           if (entry.mElem.equals(e)) {
-               return entry;
-           }
-       }
-        throw new NoSuchElementException(String.format("%s is not in %s", e, mEntries));
+    private Entry<E> find(Object e) {
+        for (Entry<E> entry : mEntries) {
+            if (entry.mElem.equals(e)) {
+                return entry;
+            }
+        }
+        throw new IllegalArgumentException(String.format("%s is not in %s", e, mEntries));
     }
 
     private static class EntryIterator<E> implements Iterator<E> {
@@ -161,7 +156,7 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
 
     private static class Entry<E> {
         private final E mElem;
-        private boolean mIsChecked = false;
+        private volatile boolean mIsChecked = false;
 
         private Entry(E elem) {
             mElem = elem;
@@ -172,11 +167,17 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isEmpty() {
         return mEntries.isEmpty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean contains(Object o) {
         for (Entry<E> entry : mEntries) {
@@ -187,6 +188,9 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object[] toArray() {
         int size = mEntries.size();
@@ -197,22 +201,36 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return array;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     @Override
     public <T> T[] toArray(T[] a) {
         return (T[]) toArray();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public boolean add(E e) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public boolean remove(Object o) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean containsAll(Collection<?> c) {
         for (Object o : c) {
@@ -223,46 +241,81 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return true;
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public boolean addAll(Collection<? extends E> c) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public boolean removeAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public E set(int index, E element) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public void add(int index, E element) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * サポートされていません。
+     * @throws UnsupportedOperationException 常に投げられる
+     */
     @Override
     public E remove(int index) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int indexOf(Object o) {
         for (int i = 0; i < mEntries.size(); i++) {
@@ -273,6 +326,9 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return -1;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int lastIndexOf(Object o) {
         for (int i = mEntries.size() - 1; i >= 0; i--) {
@@ -283,16 +339,31 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
         return -1;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ListIterator<E> listIterator() {
-        throw new UnsupportedOperationException();
+        @SuppressWarnings("unchecked")
+        E[] array = (E[]) toArray();
+        List<E> list = Arrays.asList(array);
+        return list.listIterator();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ListIterator<E> listIterator(int index) {
-        throw new UnsupportedOperationException();
+        @SuppressWarnings("unchecked")
+        E[] array = (E[]) toArray();
+        List<E> list = Arrays.asList(array);
+        return list.listIterator(index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
