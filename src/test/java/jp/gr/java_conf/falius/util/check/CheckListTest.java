@@ -116,7 +116,7 @@ public class CheckListTest {
         };
 
         for (Integer i : checkChars.values()) {
-            checkList.check(i);
+            checkList.checkByIndex(i);
         }
 
         for (String c : checkChars.keySet()) {

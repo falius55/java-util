@@ -36,10 +36,6 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
 
     @Override
     public void check(E e) {
-        checkObject(e);
-    }
-
-    private void checkObject(E e) {
         Entry<E> entry = find(e);
         entry.mIsChecked = true;
     }
@@ -49,32 +45,22 @@ public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
      * 追加された順序であるインデックスで要素を指定してチェックをつけます。<br>
      * <p>
      * 注意：<br>
-     * 要素がIntegerの場合のみcheck(E e)に委譲され、同値のオブジェクトにチェックがつけられます
-     *     (そのためインデックスによる指定はできません。また、型パラメータではなく要素オブジェクト自体の型によって
+     * 与えられたインデックスが範囲外の場合およびそのインデックスによって取得された要素の型がIntegerの場合は
+     *     check(E e)に委譲され、同値のオブジェクトにチェックがつけられます
+     *     (そのためIntegerではインデックスによる指定はできません。また、型パラメータではなく要素オブジェクト自体の型によって
      *     判断されますので、型パラメータがNumberなどIntegerの基底型の場合は注意が必要となります)。
-     *     その場合は対象オブジェクトの検索が二度行われることになるため、効率が求められる際はintではなく直接Integerを
-     *     引数に渡すようにしてください。
      * @param index
      */
-    public void check(int index) {
+    public void checkByIndex(int index) {
         Entry<E> entry = mEntries.get(index);
-
-        /*
-         * もし要素がIntegerの場合は、プリミティブのintが渡されても
-         *     Indexではなく同値オブジェクトを探してチェックをつける。
-         * Integerを要素にしているのにindexで要素を指定することは考えづらいので、
-         *     おそらくこの方が期待していた動作になるはず。
-         * この際、検索を二度(get(index)とfind(E))行うことになるため効率はよくない。
-         */
-        if (entry.mElem instanceof Integer) {
-            E elem = find(Integer.valueOf(index)).mElem;
-            checkObject(elem);
-            return;
-        }
-
         entry.mIsChecked = true;
     }
 
+    /**
+     * 指定した要素にチェックが付いているかどうかを返します。
+     * @param e
+     * @return
+     */
     public boolean isChecked(E e) {
         Entry<E> entry = find(e);
         return entry.mIsChecked;

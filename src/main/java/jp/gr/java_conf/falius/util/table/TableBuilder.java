@@ -12,6 +12,8 @@ import java.util.Set;
 import jp.gr.java_conf.falius.util.range.StringRange;
 
 /**
+ * @Deprecated プラットフォームにより表示がずれることがあります。
+ *
  * <p>
  * データを格納し、表を作成するクラス
  * {@code
