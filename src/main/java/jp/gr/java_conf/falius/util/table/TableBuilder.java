@@ -12,10 +12,11 @@ import java.util.Set;
 import jp.gr.java_conf.falius.util.range.StringRange;
 
 /**
- * @Deprecated プラットフォームにより表示がずれることがあります。
+ * @deprecated プラットフォームにより表示がずれることがあります。
  *
  * <p>
  * データを格納し、表を作成するクラス
+ * <pre>
  * {@code
  * // コンストラクタに列名を渡してインスタンスを作成
  * TableBuilder tb = new TableBuilder("名前","性別","年齢", "イニシャル");
@@ -45,6 +46,8 @@ import jp.gr.java_conf.falius.util.range.StringRange;
  * tb.insert("Kai").add(3, 'K');
  * tb.print();
  * }
+ * </pre>
+ * <p>
  * 上の例で作成される表
  * +-----+-----+-----+-----------+
  * |名前 |性別 |年齢 |イニシャル |

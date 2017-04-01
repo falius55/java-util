@@ -7,7 +7,6 @@ import java.util.Iterator;
  * startを含み、endを含まない連続した数値のイテレータです。
  * toArrayメソッドを利用することで拡張for文におけるIntegerへのオートボクシング変換を防ぐことができます。
  * <p>
- * <p>
  * stepを省略すると１として扱われ、さらにstartを省略すると０から始まります。
  * </p>
  */
