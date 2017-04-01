@@ -102,6 +102,10 @@ public final class DateTime implements Comparable<DateTime> {
         return mCalendar.getTimeInMillis();
     }
 
+    /**
+     * デフォルトのフォーマットでこのインスタンスを表す文字列を返します。
+     * @return
+     */
     public String format() {
         return formatTo(DEFAULT_DATE_FORMAT);
     }
@@ -156,10 +160,19 @@ public final class DateTime implements Comparable<DateTime> {
         return (int) processMillis;
     }
 
+    /**
+     * {@code DateTime.computeElepsedDays(this, another);} と同義です。
+     * @param another
+     * @return
+     */
     public int computeElapsedDays(DateTime another) {
         return computeElapsedDays(this, another);
     }
 
+    /**
+     * 翌日を表す新しいインスタンスを返します。
+     * @return
+     */
     public DateTime nextDay() {
         Calendar ret = Calendar.getInstance();
         ret.setTimeInMillis(getTimeInMillis());
@@ -167,6 +180,10 @@ public final class DateTime implements Comparable<DateTime> {
         return new DateTime(ret);
     }
 
+    /**
+     * 前日を表す新しいインスタンスを返します。
+     * @return
+     */
     public DateTime prevDay() {
         Calendar ret = Calendar.getInstance();
         ret.setTimeInMillis(getTimeInMillis());
