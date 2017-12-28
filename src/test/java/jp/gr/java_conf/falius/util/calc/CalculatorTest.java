@@ -103,6 +103,30 @@ public class CalculatorTest {
     }
 
     @Test
+    public void deviationTest() {
+        int score = 50;
+        int[] others = { 90, 60, 60, 40, 100, 40, 40, 50, 70};
+
+        int vrc = Calculator.variance(score, others);
+        assertThat(vrc, is(400));
+
+        int stdev = Calculator.standardDeviation(score, others);
+        assertThat(stdev, is(20));
+
+        int dev = Calculator.deviation(score, others);
+        assertThat(dev, is(45));
+    }
+
+    @Test
+    public void deviationTest2() {
+        int score = 100;
+        int[] others = { 90, 60, 60, 40, 50, 40, 40, 50, 70};
+
+        int dev = Calculator.deviation(score, others);
+        assertThat(dev, is(70));
+    }
+
+    @Test
     public void permutationTest() {
         int n = 5;
         int r = 3;

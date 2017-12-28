@@ -25,12 +25,80 @@ public final class Calculator {
         return ret;
     }
 
+    /**
+     * 平均値を計算します。
+     * @param first
+     * @param other
+     * @return
+     */
     public static int average(int first, int... other ) {
         int sum = first;
         for (int elem : other) {
             sum += elem;
         }
         return sum / (other.length + 1);
+    }
+
+    /**
+     * 偏差値を求めます。
+     * @param score 点数
+     * @param otherScores 他の点数
+     * @return
+     * @throws IllegalArgumentException 引数が負の数の場合
+     */
+    public static int deviation(int score, int... otherScores) {
+
+        int avg = average(score, otherScores);
+        int tmp = Math.abs(score - avg) * 10 / standardDeviation(score, otherScores);
+
+        final int STANDARD = 50;
+        if (score > avg) {
+            return STANDARD + tmp;
+        } else if (score < avg) {
+            return STANDARD - tmp;
+        }
+        return STANDARD;
+    }
+
+    /**
+     * 分散を求めます。
+     * @param first
+     * @param others
+     * @return
+     * @throws IllegalArgumentException 引数が負の数の場合
+     */
+    public static int variance(int first, int... others) {
+        if (first < 0) {
+            throw new IllegalArgumentException("first < 0: " + first);
+        }
+        for (int elem : others) {
+            if (elem < 0) {
+                throw new IllegalArgumentException("other < 0: " + elem);
+            }
+        }
+
+        // 平均点との差の平方数の平均
+        int avg = average(first, others);
+        int ret = (first - avg) * (first - avg);
+        for (int elem : others) {
+            ret += (elem - avg) * (elem - avg);
+        }
+
+        ret /= others.length + 1;
+
+        return ret;
+    }
+
+    /**
+     * 標準偏差を求めます。
+     * @param first
+     * @param others
+     * @return
+     * @throws IllegalArgumentException 引数が負の数の場合
+     */
+    public static int standardDeviation(int first, int... others) {
+        // 分散の平方根
+        return (int) Math.sqrt(variance(first, others));
     }
 
     /**
