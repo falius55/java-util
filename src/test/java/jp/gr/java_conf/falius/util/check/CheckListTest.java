@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import jp.gr.java_conf.falius.util.list.CheckList;
+
 public class CheckListTest {
 
     @Test

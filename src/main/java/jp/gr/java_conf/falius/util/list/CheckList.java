@@ -1,4 +1,4 @@
-package jp.gr.java_conf.falius.util.check;
+package jp.gr.java_conf.falius.util.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
