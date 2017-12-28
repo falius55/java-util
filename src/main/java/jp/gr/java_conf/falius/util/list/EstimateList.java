@@ -21,6 +21,12 @@ public class EstimateList<T> implements List<T> {
         mValues = new ArrayList<T>();
     }
 
+    /**
+     * 指定値を設定します。
+     * 指定された値を保持していなければ何もせずにfalseを返します。
+     * @param val
+     * @return 新たな指定値の設定に成功するとtrue
+     */
     public boolean estimate(T val) {
         int index = mValues.indexOf(val);
         if (index == -1) {
@@ -30,13 +36,20 @@ public class EstimateList<T> implements List<T> {
         return true;
     }
 
+    /**
+     * インデックスで指定値を設定します。
+     * 保持している値がなければ何もしません。
+     * 指定したインデックスが保持している要素数よりも大きい場合は最後の値を指定します。
+     * @param index
+     * @return 新たな指定値の設定に成功するとtrue
+     * @throws IllegalArgumentException 引数が負の数だった場合
+     */
     public boolean estimateByIndex(int index) {
         if (index < 0) {
             throw new IllegalArgumentException();
         }
 
         if (isEmpty()) {
-            mIndex = -1;
             return false;
         }
         if (index >= size()) {
@@ -48,6 +61,11 @@ public class EstimateList<T> implements List<T> {
         return true;
     }
 
+    /**
+     * 指定している要素のインデックスを返します。
+     * 未指定の場合、最初の値を指定していると見なします。
+     * @return 指定要素のインデックス。保持要素がなければ－１
+     */
     public int estimatedIndex() {
         if (mIndex < 0 && size() > 0) {
             mIndex = 0;
@@ -55,6 +73,11 @@ public class EstimateList<T> implements List<T> {
         return mIndex;
     }
 
+    /**
+     * 指定している要素を返します。
+     * @return
+     * @throws IllegalSttateException 保持要素が存在しない場合
+     */
     public T estimatedValue() {
         int index = estimatedIndex();
         if (index < 0) {
@@ -64,8 +87,46 @@ public class EstimateList<T> implements List<T> {
         return mValues.get(index);
     }
 
-    public void estimateNext() {
+    /**
+     * 現在指定されている値の次の値を指定します。
+     * 現在指定されている値が最後の値である場合には、最初の値が新たに指定されます。
+     * 要素を保持していなければ何もしません。
+     * @return
+     */
+    public boolean estimateNext() {
+        int index = estimatedIndex();
+        if (index == -1) {
+            return false;
+        }
 
+        if (index == size() - 1) {
+            mIndex = 0;
+            return true;
+        }
+
+        mIndex++;
+        return true;
+    }
+
+    /**
+     * 現在指定されている値の前の値を指定します。
+     * 現在指定されている値が最初の値である場合には、最後の値が新たに指定されます。
+     * 要素を保持していなければ何もしません。
+     * @return
+     */
+    public boolean estimatePrev() {
+        int index = estimatedIndex();
+        if (index == -1) {
+            return false;
+        }
+
+        if (index == 0) {
+            mIndex = size() - 1;
+            return true;
+        }
+
+        mIndex--;
+        return true;
     }
 
 

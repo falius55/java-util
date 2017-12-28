@@ -84,4 +84,58 @@ public class EstimateListTest {
         String val = list.estimatedValue(); // throw
         assertThat(val, is("aaa"));
     }
+
+    @Test
+    public void estimateNextTest() {
+        EstimateList<String> list = new EstimateList<>();
+        boolean ret = list.estimateNext();
+        assertThat(ret, is(false));
+        assertThat(list.estimatedIndex(), is(-1));
+
+        list.add("abc");
+        list.add("def");
+        list.add("ghi");
+        list.add("jkl");
+        list.add("mno");
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("abc"));
+
+        int k = 0;
+        for (String elem : list) {
+            assertThat(list.estimatedValue(), is(elem));
+            assertThat(list.estimatedIndex(), is(k++));
+            ret = list.estimateNext();
+            assertThat(ret, is(true));
+        }
+        assertThat(list.estimatedValue(), is("abc"));
+        assertThat(list.estimatedIndex(), is(0));
+    }
+
+    @Test
+    public void estimatePrevTest() {
+        EstimateList<String> list = new EstimateList<>();
+        boolean ret = list.estimatePrev();
+        assertThat(ret, is(false));
+        assertThat(list.estimatedIndex(), is(-1));
+
+        list.add("abc");
+        list.add("def");
+        list.add("ghi");
+        list.add("jkl");
+        list.add("mno");
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("abc"));
+
+        ret = list.estimatePrev();
+        assertThat(ret, is(true));
+        for (int k = list.size() - 1; k >= 0; k--) {
+            assertThat(list.estimatedValue(), is(list.get(k)));
+            assertThat(list.estimatedIndex(), is(k));
+            ret = list.estimatePrev();
+            assertThat(ret, is(true));
+        }
+        assertThat(list.estimatedValue(), is("mno"));
+        assertThat(list.estimatedIndex(), is(list.size() - 1));
+    }
+
 }
