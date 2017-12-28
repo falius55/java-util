@@ -73,6 +73,36 @@ public class CalculatorTest {
     }
 
     @Test
+    public void averageTest() {
+        int result = Calculator.average(20, 10, 40, 70, 30);
+        assertThat(result, is(34));
+    }
+
+    @Test
+    public void averageTest2() {
+        int result = Calculator.average(20, 10, 40, 70);
+        assertThat(result, is((20 + 10 + 40 + 70) / 4));
+    }
+
+    @Test
+    public void averageTest3() {
+        int result = Calculator.average(100);
+        assertThat(result, is(100));
+    }
+
+    @Test
+    public void averageTest4() {
+        int result = Calculator.average(-20, -10, -50, 0);
+        assertThat(result, is(-20));
+    }
+
+    @Test
+    public void averageTest5() {
+        int result = Calculator.average(-20, 10, 50, 0, -45, 30);
+        assertThat(result, is(25 / 6));
+    }
+
+    @Test
     public void permutationTest() {
         int n = 5;
         int r = 3;
@@ -131,6 +161,13 @@ public class CalculatorTest {
     @Test
     public void factorialTest2() {
         int n = 0;
+        int result = Calculator.factorial(n);
+        assertThat(result, is(1));
+    }
+
+    @Test
+    public void factorialTest3() {
+        int n = 1;
         int result = Calculator.factorial(n);
         assertThat(result, is(1));
     }

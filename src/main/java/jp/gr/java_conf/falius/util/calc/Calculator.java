@@ -1,6 +1,6 @@
 package jp.gr.java_conf.falius.util.calc;
 
-public class Calculator {
+public final class Calculator {
 
     private Calculator() {}
 
@@ -23,6 +23,14 @@ public class Calculator {
         }
 
         return ret;
+    }
+
+    public static int average(int first, int... other ) {
+        int sum = first;
+        for (int elem : other) {
+            sum += elem;
+        }
+        return sum / (other.length + 1);
     }
 
     /**
