@@ -24,6 +24,12 @@ public class EstimateList<E> implements List<E> {
 
     public EstimateList(Collection<? extends E> c) {
         mValues = new ArrayList<>(c);
+
+        if (c instanceof EstimateList) {
+            @SuppressWarnings("unchecked")
+            EstimateList<E> r = (EstimateList<E>) c;
+            mIndex = r.estimatedIndex();
+        }
     }
 
     public EstimateList(int initialCapacity) {
