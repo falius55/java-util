@@ -41,14 +41,19 @@ public final class Calculator {
         return sum / (other.length + 1);
     }
 
-    public static int deviation(EstimateList<Integer> list) {
+    /**
+     * 偏差値を求めます。
+     * @param param
+     * @return
+     */
+    public static int deviation(EstimateList<Integer> param) {
+        EstimateList<Integer> list = new EstimateList<>(param);
         int score = list.estimatedValue().intValue();
-        int[] otherScores = new int[list.size() - 1];
+        list.remove(list.estimatedValue());
+        int[] otherScores = new int[list.size()];
 
-        for (int i = 0, k = 0; i < list.size(); i++) {
-            if (list.get(i).intValue() != score) {
-                otherScores[k++] = list.get(i).intValue();
-            }
+        for (int i = 0; i < list.size(); i++) {
+            otherScores[i] = list.get(i);
         }
 
         return deviation(score, otherScores);
