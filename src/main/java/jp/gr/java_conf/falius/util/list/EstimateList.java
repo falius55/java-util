@@ -173,18 +173,12 @@ public class EstimateList<E> implements List<E> {
     @Override
     public boolean remove(Object o) {
         int rmIndex = indexOf(o);
-        // 削除するものがないなら何もしない。
-        if (rmIndex == -1) {
+        E ret = remove(rmIndex);
+        if (ret == null) {
             return false;
         }
 
-        if (rmIndex < mIndex || (mIndex == size() - 1 && rmIndex == mIndex )) {
-            // 指定インデックスより小さいインデックスの値を削除する。
-            // 最後の値が指定されていて、それを削除する。
-            mIndex--;
-        }
-
-        return mValues.remove(o);
+        return true;
     }
 
     @Override
@@ -199,6 +193,9 @@ public class EstimateList<E> implements List<E> {
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
+        if (index <= mIndex) {
+            mIndex += c.size();
+        }
         return mValues.addAll(index, c);
     }
 
@@ -229,6 +226,10 @@ public class EstimateList<E> implements List<E> {
         return mValues.get(index);
     }
 
+    /**
+     * {@inheritDoc}
+     * 指定要素を置き換えると、置き換えられた要素がそのまま指定されます。
+     */
     @Override
     public E set(int index, E element) {
         return mValues.set(index, element);
@@ -236,11 +237,28 @@ public class EstimateList<E> implements List<E> {
 
     @Override
     public void add(int index, E element) {
+        if (index <= mIndex) {
+            mIndex++;
+        }
         mValues.add(index, element);
     }
 
     @Override
     public E remove(int index) {
+        // 削除するものがないなら何もしない。
+        if (index == -1) {
+            return null;
+        }
+        if (index >= size()) {
+            return null;
+        }
+
+        if (index < mIndex || (mIndex == size() - 1 && index == mIndex )) {
+            // 指定インデックスより小さいインデックスの値を削除する。
+            // 最後の値が指定されていて、それを削除する。
+            mIndex--;
+        }
+
         return mValues.remove(index);
     }
 

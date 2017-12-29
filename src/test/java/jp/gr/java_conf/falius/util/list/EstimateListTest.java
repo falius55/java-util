@@ -237,4 +237,39 @@ public class EstimateListTest {
         assertThat(list.estimatedIndex(), is(-1));
     }
 
+    @Test
+    public void addTest() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+        assertThat(list.size(), is(5));
+        list.estimateByIndex(3);  // "jkl"
+        list.add(2, "ccc");
+        assertThat(list.estimatedValue(), is("jkl"));
+        assertThat(list.estimatedIndex(), is(4));
+    }
+
+    @Test
+    public void addAllTest() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+        assertThat(list.size(), is(5));
+        list.estimateByIndex(3);  // "jkl"
+        list.addAll(3, Arrays.asList("aaa", "ccc", "eee"));
+        assertThat(list.estimatedValue(), is("jkl"));
+        assertThat(list.estimatedIndex(), is(6));
+    }
 }
