@@ -1,5 +1,7 @@
 package jp.gr.java_conf.falius.util.calc;
 
+import jp.gr.java_conf.falius.util.list.EstimateList;
+
 public final class Calculator {
 
     private Calculator() {}
@@ -37,6 +39,24 @@ public final class Calculator {
             sum += elem;
         }
         return sum / (other.length + 1);
+    }
+
+    /**
+     * 偏差値を求めます。
+     * @param param
+     * @return
+     */
+    public static int deviation(EstimateList<Integer> param) {
+        EstimateList<Integer> list = new EstimateList<>(param);
+        int score = list.estimatedValue().intValue();
+        list.remove(list.estimatedValue());
+        int[] otherScores = new int[list.size()];
+
+        for (int i = 0; i < list.size(); i++) {
+            otherScores[i] = list.get(i);
+        }
+
+        return deviation(score, otherScores);
     }
 
     /**

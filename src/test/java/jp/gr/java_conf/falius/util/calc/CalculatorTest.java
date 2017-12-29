@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import jp.gr.java_conf.falius.util.list.EstimateList;
+
 public class CalculatorTest {
 
     @Test
@@ -124,6 +126,19 @@ public class CalculatorTest {
 
         int dev = Calculator.deviation(score, others);
         assertThat(dev, is(70));
+    }
+
+    @Test
+    public void deviationListTest() {
+        EstimateList<Integer> list = new EstimateList<>( 50, 90, 60, 60, 40, 100, 40, 40, 50, 70 );
+        int dev = Calculator.deviation(list);
+        assertThat(dev, is(45));
+
+        list.estimate(100);
+        assertThat(Calculator.deviation(list), is(70));
+
+        list.estimate(70);
+        assertThat(Calculator.deviation(list), is(55));
     }
 
     @Test
