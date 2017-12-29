@@ -210,9 +210,16 @@ public class EstimateList<E> implements List<E> {
         return ret;
     }
 
+    /**
+     * {@inheritDoc}
+     * 指定されているのと同じ要素を複数保持している場合、予期しない動作をする可能性があります。
+     */
     @Override
     public boolean retainAll(Collection<?> c) {
-        return mValues.retainAll(c);
+        E estimatedValue = estimatedValue();
+        boolean ret =  mValues.retainAll(c);
+        mIndex = lastIndexOf(estimatedValue);
+        return ret;
     }
 
     @Override
