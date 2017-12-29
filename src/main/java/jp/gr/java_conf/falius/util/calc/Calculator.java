@@ -1,5 +1,6 @@
 package jp.gr.java_conf.falius.util.calc;
 
+import jp.gr.java_conf.falius.util.ArrayUtils;
 import jp.gr.java_conf.falius.util.list.EstimateList;
 
 public final class Calculator {
@@ -50,11 +51,7 @@ public final class Calculator {
         EstimateList<Integer> list = new EstimateList<>(param);
         int score = list.estimatedValue().intValue();
         list.remove(list.estimatedValue());
-        int[] otherScores = new int[list.size()];
-
-        for (int i = 0; i < list.size(); i++) {
-            otherScores[i] = list.get(i);
-        }
+        int[] otherScores = ArrayUtils.toIntArray(list.toArray(new Integer[0]));
 
         return deviation(score, otherScores);
     }
@@ -69,13 +66,13 @@ public final class Calculator {
     public static int deviation(int score, int... otherScores) {
 
         int avg = average(score, otherScores);
-        int tmp = Math.abs(score - avg) * 10 / standardDeviation(score, otherScores);
+        int diff = Math.abs(score - avg) * 10 / standardDeviation(score, otherScores);
 
         final int STANDARD = 50;
         if (score > avg) {
-            return STANDARD + tmp;
+            return STANDARD + diff;
         } else if (score < avg) {
-            return STANDARD - tmp;
+            return STANDARD - diff;
         }
         return STANDARD;
     }
