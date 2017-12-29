@@ -3,6 +3,8 @@ package jp.gr.java_conf.falius.util.list;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class EstimateListTest {
@@ -136,6 +138,103 @@ public class EstimateListTest {
         }
         assertThat(list.estimatedValue(), is("mno"));
         assertThat(list.estimatedIndex(), is(list.size() - 1));
+    }
+
+    @Test
+    public void removeTest() {
+        EstimateList<String> list = new EstimateList<>();
+
+        // 削除対象を保持していない場合
+        boolean ret = list.remove("ghi");
+        assertThat(ret, is(false));
+        assertThat(list.estimatedIndex(), is(-1));
+
+        list.add("abc");
+        list.add("def");
+        list.add("ghi");
+        list.add("jkl");
+        list.add("mno");
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("abc"));
+
+        // "abc", "def", "ghi", "jkl", "mno"
+        // estimate: "abc"
+        ret = list.remove("abc");
+        assertThat(ret, is(true));
+        assertThat(list.estimatedValue(), is("def"));
+        assertThat(list.estimatedIndex(), is(0));
+
+        // 最後の値を削除する
+        // "def", "ghi", "jkl", "mno"
+        // estimate: "def"
+        ret = list.estimate("mno");
+        assertThat(ret, is(true));
+        ret = list.remove("mno");
+        assertThat(ret, is(true));
+        assertThat(list.estimatedIndex(), is(2));
+        assertThat(list.estimatedValue(), is("jkl"));
+
+        // 指定要素より小さいインデックスの値を削除する。
+        // "def", "ghi", "jkl"
+        // estimate: "jkl"
+        ret = list.remove("ghi");
+        assertThat(ret, is(true));
+        assertThat(list.estimatedIndex(), is(1));
+        assertThat(list.estimatedValue(), is("jkl"));
+
+        // 指定要素より大きいインデックスの値を削除する。
+        // "def", "jkl"
+        // estimate: "jkl"
+        list.estimate("def");
+        ret = list.remove("jkl");
+        assertThat(ret, is(true));
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("def"));
+
+        // 存在しない要素を削除する。
+        // "def"
+        // estimate: "def"
+        ret = list.remove("abc");
+        assertThat(ret, is(false));
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("def"));
+
+        // "def"
+        // estimate: "def"
+        ret = list.remove("def");
+        assertThat(ret, is(true));
+        assertThat(list.estimatedIndex(), is(-1));
+
+
+        list.add("aaa");
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("aaa"));
+
+    }
+
+    @Test
+    public void removeAllTest() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+        assertThat(list.size(), is(5));
+
+        list.estimate("def");
+        assertThat(list.estimatedIndex(), is(1));
+        boolean ret = list.removeAll(Arrays.asList("def", "jkl", "mno"));
+        assertThat(ret, is(true));
+        assertThat(list.estimatedIndex(), is(1));
+        assertThat(list.estimatedValue(), is("ghi"));
+
+        ret = list.removeAll(Arrays.asList("abc", "ghi"));
+        assertThat(ret, is(true));
+        assertThat(list.estimatedIndex(), is(-1));
     }
 
 }

@@ -1,6 +1,7 @@
 package jp.gr.java_conf.falius.util.list;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -13,12 +14,12 @@ import java.util.ListIterator;
  * @author "ymiyauchi"
  *
  */
-public class EstimateList<T> implements List<T> {
-    private final List<T> mValues;
+public class EstimateList<E> implements List<E> {
+    private final List<E> mValues;
     private int mIndex = -1;
 
     public EstimateList() {
-        mValues = new ArrayList<T>();
+        mValues = new ArrayList<E>();
     }
 
     /**
@@ -27,7 +28,7 @@ public class EstimateList<T> implements List<T> {
      * @param val
      * @return 新たな指定値の設定に成功するとtrue
      */
-    public boolean estimate(T val) {
+    public boolean estimate(E val) {
         int index = mValues.indexOf(val);
         if (index == -1) {
             return false;
@@ -78,7 +79,7 @@ public class EstimateList<T> implements List<T> {
      * @return
      * @throws IllegalSttateException 保持要素が存在しない場合
      */
-    public T estimatedValue() {
+    public E estimatedValue() {
         int index = estimatedIndex();
         if (index < 0) {
             throw new IllegalStateException();
@@ -129,7 +130,6 @@ public class EstimateList<T> implements List<T> {
         return true;
     }
 
-
     @Override
     public int size() {
         return mValues.size();
@@ -146,7 +146,7 @@ public class EstimateList<T> implements List<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<E> iterator() {
         return mValues.iterator();
     }
 
@@ -161,7 +161,7 @@ public class EstimateList<T> implements List<T> {
     }
 
     @Override
-    public boolean add(T e) {
+    public boolean add(E e) {
         return mValues.add(e);
     }
 
@@ -176,12 +176,14 @@ public class EstimateList<T> implements List<T> {
         // 削除するものがないなら何もしない。
         if (rmIndex == -1) {
             return false;
-
-        } else if (rmIndex == size() - 1) {
-            // 最後の値が指定されていて、それを削除する。
-            mIndex -= 1;
-
         }
+
+        if (rmIndex < mIndex || (mIndex == size() - 1 && rmIndex == mIndex )) {
+            // 指定インデックスより小さいインデックスの値を削除する。
+            // 最後の値が指定されていて、それを削除する。
+            mIndex--;
+        }
+
         return mValues.remove(o);
     }
 
@@ -191,18 +193,24 @@ public class EstimateList<T> implements List<T> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> c) {
+    public boolean addAll(Collection<? extends E> c) {
         return mValues.addAll(c);
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends T> c) {
+    public boolean addAll(int index, Collection<? extends E> c) {
         return mValues.addAll(index, c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return mValues.removeAll(c);
+        boolean ret = true;
+        for (Object elem : c) {
+            if (!remove(elem)) {
+                ret = false;
+            }
+        }
+        return ret;
     }
 
     @Override
@@ -217,22 +225,22 @@ public class EstimateList<T> implements List<T> {
     }
 
     @Override
-    public T get(int index) {
+    public E get(int index) {
         return mValues.get(index);
     }
 
     @Override
-    public T set(int index, T element) {
+    public E set(int index, E element) {
         return mValues.set(index, element);
     }
 
     @Override
-    public void add(int index, T element) {
+    public void add(int index, E element) {
         mValues.add(index, element);
     }
 
     @Override
-    public T remove(int index) {
+    public E remove(int index) {
         return mValues.remove(index);
     }
 
@@ -247,18 +255,26 @@ public class EstimateList<T> implements List<T> {
     }
 
     @Override
-    public ListIterator<T> listIterator() {
+    public ListIterator<E> listIterator() {
         return mValues.listIterator();
     }
 
     @Override
-    public ListIterator<T> listIterator(int index) {
+    public ListIterator<E> listIterator(int index) {
         return mValues.listIterator(index);
     }
 
     @Override
-    public List<T> subList(int fromIndex, int toIndex) {
+    public List<E> subList(int fromIndex, int toIndex) {
         return mValues.subList(fromIndex, toIndex);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("index: ").append(mIndex).append(System.lineSeparator());
+      sb.append("value: ").append(mIndex < 0 ? "non" : get(mIndex)).append(System.lineSeparator());
+      sb.append(Arrays.toString(toArray()));
+      return sb.toString();
     }
 
 }
