@@ -19,7 +19,19 @@ public class EstimateList<E> implements List<E> {
     private int mIndex = -1;
 
     public EstimateList() {
-        mValues = new ArrayList<E>();
+        mValues = new ArrayList<>();
+    }
+
+    public EstimateList(Collection<? extends E> c) {
+        mValues = new ArrayList<>(c);
+    }
+
+    public EstimateList(int initialCapacity) {
+        mValues = new ArrayList<>(initialCapacity);
+    }
+
+    public EstimateList(@SuppressWarnings("unchecked") E... es) {
+        this(Arrays.asList(es));
     }
 
     /**
