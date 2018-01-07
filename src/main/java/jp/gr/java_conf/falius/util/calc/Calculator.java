@@ -31,23 +31,28 @@ public final class Calculator {
     /**
      * 平均値を計算します。
      * @param first
-     * @param other
+     * @param others
      * @return
      */
-    public static int average(int first, int... other ) {
+    public static int average(int first, int... others) {
         int sum = first;
-        for (int elem : other) {
+        for (int elem : others) {
             sum += elem;
         }
-        return sum / (other.length + 1);
+        return sum / (others.length + 1);
     }
 
     /**
      * 偏差値を求めます。
      * @param param
      * @return
+     * @throws IllegalArgumentException 引数リストに要素が入っていない場合
      */
     public static int deviation(EstimateList<Integer> param) {
+        if (param.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         EstimateList<Integer> list = new EstimateList<>(param);
         int score = list.estimatedValue().intValue();
         list.remove(list.estimatedValue());
