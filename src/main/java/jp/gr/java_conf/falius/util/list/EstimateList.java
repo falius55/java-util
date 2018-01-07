@@ -14,7 +14,7 @@ import java.util.ListIterator;
  * @author "ymiyauchi"
  *
  */
-public class EstimateList<E> implements List<E> {
+public class EstimateList<E> implements List<E>, Checkable<E> {
     private final List<E> mValues;
     private int mIndex = -1;
 
@@ -53,6 +53,16 @@ public class EstimateList<E> implements List<E> {
         }
         mIndex = index;
         return true;
+    }
+
+    /**
+     * 指定値を設定します。
+     * estimate(E val)と同等です。
+     * @param e
+     */
+    @Override
+    public void check(E e) {
+        estimate(e);
     }
 
     /**
