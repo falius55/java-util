@@ -33,4 +33,12 @@ public class DivisorTest {
         int result = Divisor.newInstance(x, y).gretestCommonFactor();
         assertThat(result, is(11));
     }
+
+    @Test
+    public void gretestCommonFactorTest4() {
+        int x = 3;
+        int y = 11;
+        int result = Divisor.newInstance(x, y).gretestCommonFactor();
+        assertThat(result, is(1));
+    }
 }
