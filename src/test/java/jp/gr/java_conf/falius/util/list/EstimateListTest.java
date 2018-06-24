@@ -272,4 +272,84 @@ public class EstimateListTest {
         assertThat(list.estimatedValue(), is("jkl"));
         assertThat(list.estimatedIndex(), is(6));
     }
+
+    @Test
+    public void subListClearTest() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+
+        list.estimate("mno");
+        assertThat(list.estimatedIndex(), is(4));
+        int from = 1;
+        int to = 4;
+        list.subList(from, to).clear();  // remain : "abc", "mno"
+        assertThat(list.size(), is(2));
+        assertThat(list.estimatedIndex(), is(1));
+        assertThat(list.estimatedValue(), is("mno"));
+    }
+
+    @Test
+    public void subListClearTest2() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+
+        list.estimate("ghi");
+        int from = 1;
+        int to = 4;
+        list.subList(from, to).clear();  // remain : "abc", "mno"
+        assertThat(list.size(), is(2));
+        assertThat(list.estimatedIndex(), is(0));
+        assertThat(list.estimatedValue(), is("abc"));
+    }
+
+    @Test
+    public void subListInnerEstimatedIndexTest() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+        list.estimate("ghi");
+        int from = 1;
+        int to = 4;
+        EstimateList<String> subList = list.subList(from, to);
+        assertThat(subList.estimatedIndex(), is(1));
+    }
+
+    @Test
+    public void subListOutorEstimatedIndexTest() {
+        EstimateList<String> list = new EstimateList<String>() {
+            {
+                add("abc");
+                add("def");
+                add("ghi");
+                add("jkl");
+                add("mno");
+            }
+        };
+        list.estimate("mno");
+        int from = 1;
+        int to = 4;
+        EstimateList<String> subList = list.subList(from, to);
+        assertThat(subList.estimatedIndex(), is(-1));
+    }
+
 }

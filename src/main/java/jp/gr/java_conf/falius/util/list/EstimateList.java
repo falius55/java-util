@@ -32,6 +32,11 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         }
     }
 
+    //  内部クラスEstimateListViewのコンストラクタで使用
+    private EstimateList(List<E> original) {
+        mValues = original;
+    }
+
     public EstimateList(int initialCapacity) {
         mValues = new ArrayList<>(initialCapacity);
     }
@@ -245,7 +250,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
     @Override
     public boolean retainAll(Collection<?> c) {
         E estimatedValue = estimatedValue();
-        boolean ret =  mValues.retainAll(c);
+        boolean ret = mValues.retainAll(c);
         mIndex = lastIndexOf(estimatedValue);
         return ret;
     }
@@ -288,7 +293,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
             return null;
         }
 
-        if (index < mIndex || (mIndex == size() - 1 && index == mIndex )) {
+        if (index < mIndex || (mIndex == size() - 1 && index == mIndex)) {
             // 指定インデックスより小さいインデックスの値を削除する。
             // 最後の値が指定されていて、それを削除する。
             mIndex--;
@@ -317,17 +322,72 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return mValues.listIterator(index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List<E> subList(int fromIndex, int toIndex) {
-        return mValues.subList(fromIndex, toIndex);
+    public EstimateList<E> subList(int fromIndex, int toIndex) {
+        EstimateListView ret = new EstimateListView(this, mValues.subList(fromIndex, toIndex), fromIndex, toIndex);
+        return ret;
     }
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("index: ").append(mIndex).append(System.lineSeparator());
-      sb.append("value: ").append(mIndex < 0 ? "non" : get(mIndex)).append(System.lineSeparator());
-      sb.append(Arrays.toString(toArray()));
-      return sb.toString();
+        StringBuilder sb = new StringBuilder("index: ").append(mIndex).append(System.lineSeparator());
+        sb.append("value: ").append(mIndex < 0 ? "non" : get(mIndex)).append(System.lineSeparator());
+        sb.append(Arrays.toString(toArray()));
+        return sb.toString();
     }
 
+    /**
+     * サブリスト用クラス
+     * このクラスのインスタンスへの変更は、オリジナルのインスタンスにも影響する
+     * @author "ymiyauchi"
+     *
+     */
+    private class EstimateListView extends EstimateList<E> {
+        // TODO: clear()以外の操作(estimateByIndex(int)など)も追加する
+        private final EstimateList<E> mOriginal;
+        private final int mFromIndex;
+        private final int mToIndex;
+
+        /**
+         *
+         * @param original アウタークラス
+         * @param listView アウタークラスで保持している要素のサブリスト
+         * @param fromIndex サブリストの開始インデックス
+         * @param toIndex サブリストの終了インデックス
+         */
+        private EstimateListView(EstimateList<E> original, List<E> listView, int fromIndex, int toIndex) {
+            super(listView);
+            mOriginal = original;
+            mFromIndex = fromIndex;
+            mToIndex = toIndex;
+
+            // 範囲内に指定値がある
+            if (mOriginal.mIndex >= mFromIndex && mOriginal.mIndex < mToIndex) {
+                super.mIndex = mOriginal.mIndex - mFromIndex;
+            } else {
+                // TODO: 範囲外に指定値がある時、ビューのインデックスは－１を返すように(現状では０を返してしまう)
+                super.mIndex = -1;
+            }
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            if (mOriginal.mIndex >= mFromIndex && mOriginal.mIndex < mToIndex) {
+                // 指定値が範囲内にあった場合、消去したら指定値がなくなる
+                mOriginal.mIndex = -1;
+            } else if (mOriginal.mIndex >= mToIndex) {
+                mOriginal.mIndex -= (mToIndex - mFromIndex);
+            }
+        }
+
+        @Override
+        public int estimatedIndex() {
+            return super.mIndex;
+        }
+
+    }
 }
