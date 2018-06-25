@@ -89,4 +89,42 @@ public class FractionTest {
         Fraction result = frac.plus(val);
         assertThat(result.toString(), is("7 / 6"));
     }
+
+    @Test
+    public void minusIntTest() {
+        int numerator = 1;
+        int denominator = 2;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction result = frac.minus(2);
+        assertThat(result.toString(), is("-3 / 2"));
+    }
+
+    @Test
+    public void minusIntTest2() {
+        int numerator = 27;
+        int denominator = 12;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction result = frac.minus(2);
+        assertThat(result.toString(), is("1 / 4"));
+    }
+
+    @Test
+    public void minusFractionTest() {
+        int numerator = 1;
+        int denominator = 2;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(2, 3);
+        Fraction result = frac.minus(val);
+        assertThat(result.toString(), is("-1 / 6"));
+    }
+
+    @Test
+    public void minusFractionTest2() {
+        int numerator = 78;
+        int denominator = 34;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(5, 11);
+        Fraction result = frac.minus(val);
+        assertThat(result.toString(), is("344 / 187"));
+    }
 }

@@ -48,7 +48,19 @@ public class Fraction {
 
     public Fraction plus(Fraction val) {
         Objects.requireNonNull(val, "val is null");
-        int numerator = this.mNumerator * val.mDenominator + this.mDenominator * val.mNumerator;
+        int numerator = this.mNumerator * val.mDenominator + val.mNumerator * this.mDenominator;
+        int denominator = this.mDenominator * val.mDenominator;
+        return new Fraction(numerator, denominator);
+    }
+
+    public Fraction minus(int val) {
+        int numerator = this.mNumerator - this.mDenominator * val;
+        int denominator = mDenominator;
+        return new Fraction(numerator, denominator);
+    }
+
+    public Fraction minus(Fraction val) {
+        int numerator = this.mNumerator * val.mDenominator - val.mNumerator * this.mDenominator;
         int denominator = this.mDenominator * val.mDenominator;
         return new Fraction(numerator, denominator);
     }
