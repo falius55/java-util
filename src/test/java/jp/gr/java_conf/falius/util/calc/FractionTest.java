@@ -127,4 +127,72 @@ public class FractionTest {
         Fraction result = frac.minus(val);
         assertThat(result.toString(), is("344 / 187"));
     }
+
+    @Test
+    public void multiplyIntTest() {
+        int numerator = 27;
+        int denominator = 12;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction result = frac.multiply(2);
+        assertThat(result.toString(), is("9 / 2"));
+    }
+
+    @Test
+    public void multiplyFractionTest() {
+        int numerator = 78;
+        int denominator = 34;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(5, 11);
+        Fraction result = frac.multiply(val);
+        assertThat(result.toString(), is("195 / 187"));
+    }
+
+    @Test
+    public void multiplyFractionTest2() {
+        int numerator = 78;
+        int denominator = -34;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(5, 11);
+        Fraction result = frac.multiply(val);
+        assertThat(result.toString(), is("-195 / 187"));
+    }
+
+    @Test
+    public void devideIntTest() {
+        int numerator = 27;
+        int denominator = 12;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction result = frac.devide(2);
+        assertThat(result.toString(), is("9 / 8"));
+    }
+
+    @Test
+    public void devideFractionTest() {
+        int numerator = 78;
+        int denominator = 34;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(5, 11);
+        Fraction result = frac.devide(val);
+        assertThat(result.toString(), is("429 / 85"));
+    }
+
+    @Test
+    public void devideFractionTest2() {
+        int numerator = 3;
+        int denominator = 4;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(1, -2);
+        Fraction result = frac.devide(val);
+        assertThat(result.toString(), is("-3 / 2"));
+    }
+
+    @Test
+    public void devideFractionTest3() {
+        int numerator = -3;
+        int denominator = 4;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction val = Fraction.newInstance(1, -2);
+        Fraction result = frac.devide(val);
+        assertThat(result.toString(), is("3 / 2"));
+    }
 }

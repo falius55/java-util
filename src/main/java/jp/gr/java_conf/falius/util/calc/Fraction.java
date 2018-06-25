@@ -65,6 +65,30 @@ public class Fraction {
         return new Fraction(numerator, denominator);
     }
 
+    public Fraction multiply(int val) {
+        int numerator = this.mNumerator * val;
+        int denominator = this.mDenominator;
+        return new Fraction(numerator, denominator);
+    }
+
+    public Fraction multiply(Fraction val) {
+        int numerator = this.mNumerator * val.mNumerator;
+        int denominator = this.mDenominator * val.mDenominator;
+        return new Fraction(numerator, denominator);
+    }
+
+    public Fraction devide(int val) {
+        int numerator = this.mNumerator;
+        int denominator = this.mDenominator * val;
+        return new Fraction(numerator, denominator);
+    }
+
+    public Fraction devide(Fraction val) {
+        int numerator = this.mNumerator * val.mDenominator;
+        int denominator = this.mDenominator * val.mNumerator;
+        return new Fraction(numerator, denominator);
+    }
+
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
