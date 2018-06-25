@@ -9,8 +9,8 @@ public class PairIntProcessor {
     private final int mFirst;
     private final int mSecond;
 
-    public static PairIntProcessor newInstance(int x, int y) {
-        return new PairIntProcessor(x, y);
+    public static PairIntProcessor newInstance(int first, int second) {
+        return new PairIntProcessor(first, second);
     }
 
     private PairIntProcessor(int first, int second) {
@@ -21,6 +21,7 @@ public class PairIntProcessor {
     /**
      * 最大公約数を求めます
      * @return
+     * @throws ArithmeticException firstおよびsecondにゼロが含まれている場合
      */
     public int gretestCommonDivisor() {
         int x = mFirst > mSecond ? mFirst : mSecond;
