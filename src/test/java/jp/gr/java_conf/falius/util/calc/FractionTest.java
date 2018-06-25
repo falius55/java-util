@@ -44,15 +44,15 @@ public class FractionTest {
         int numerator = 30;
         int denominator = 3;
         Fraction frac = Fraction.newInstance(numerator, denominator);
-        assertThat(frac.toString(), is("10 / 1"));
+        assertThat(frac.toString(), is("10"));
     }
 
     @Test(expected = ArithmeticException.class)
     public void newInstanceTest6() {
         int numerator = 30;
-        int denominator = 0;  // ゼロ除算
+        int denominator = 0; // ゼロ除算
         Fraction frac = Fraction.newInstance(numerator, denominator);
-        assertThat(frac.toString(), is("10 / 1"));
+        assertThat(frac.toString(), is("10"));
     }
 
     @Test
@@ -69,6 +69,122 @@ public class FractionTest {
         int denominator = -12;
         Fraction frac = Fraction.newInstance(numerator, denominator);
         assertThat(frac.toString(), is("-1 / 3"));
+    }
+
+    @Test
+    public void isProperTest() {
+        {
+            int numerator = 4;
+            int denominator = -12;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isProper(), is(true));
+        }
+
+        {
+            int numerator = 13;
+            int denominator = 2;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isProper(), is(false));
+        }
+    }
+
+    @Test
+    public void isImproperTest() {
+        {
+            int numerator = 7;
+            int denominator = 2;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isImproper(), is(true));
+        }
+
+        {
+            int numerator = 3;
+            int denominator = 8;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isImproper(), is(false));
+        }
+    }
+
+    @Test
+    public void isIntTest() {
+        {
+            int numerator = 18;
+            int denominator = 6;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isInt(), is(true));
+        }
+
+        {
+            int numerator = 3;
+            int denominator = 8;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isInt(), is(false));
+        }
+
+        {
+            int numerator = 0;
+            int denominator = 8;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isInt(), is(true));
+        }
+    }
+
+    @Test
+    public void isUnitTest() {
+        {
+            int numerator = 1;
+            int denominator = 5;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isUnit(), is(true));
+        }
+
+        {
+            int numerator = 3;
+            int denominator = 8;
+            Fraction frac = Fraction.newInstance(numerator, denominator);
+            assertThat(frac.isUnit(), is(false));
+        }
+    }
+
+    @Test
+    public void toIntValueTest() {
+        int numerator = 90;
+        int denominator = 30;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        assertThat(frac.toIntValue(), is(3));
+    }
+
+    @Test
+    public void toIntValueTest2() {
+        int numerator = 12;
+        int denominator = 5;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        assertThat(frac.toIntValue(), is(2));
+    }
+
+    @Test
+    public void toProperTest() {
+        int numerator = 12;
+        int denominator = 5;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        Fraction prop = frac.toProper();
+        assertThat(prop.toString(), is("2 / 5"));
+    }
+
+    @Test
+    public void toDoubleValueTest() {
+        int numerator = 2;
+        int denominator = 5;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        assertThat(frac.toDoubleValue(), is(0.4d));
+    }
+
+    @Test
+    public void toDoubleValueTest2() {
+        int numerator = 7;
+        int denominator = 5;
+        Fraction frac = Fraction.newInstance(numerator, denominator);
+        assertThat(frac.toDoubleValue(), is(1.4d));
     }
 
     @Test
