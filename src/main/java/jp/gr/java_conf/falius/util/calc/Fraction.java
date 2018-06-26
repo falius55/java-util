@@ -16,6 +16,24 @@ public class Fraction extends Number {
     }
 
     /**
+     * 単位分数(分子が1の分数)のインスタンスを作成します。
+     * @param denominator 分母
+     * @return
+     */
+    public static Fraction newUnit(int denominator) {
+        return new Fraction(1, denominator);
+    }
+
+    /**
+     * 整数によってインスタンス(分母が1)を作成します。
+     * @param val 値
+     * @return
+     */
+    public static Fraction newInstanceByInteger(int val) {
+        return new Fraction(val, 1);
+    }
+
+    /**
      *
      * 自動で約分されます。
      * @param numerator 分子
@@ -56,10 +74,10 @@ public class Fraction extends Number {
 
     /**
      *
-     * @return 分子が分母より大きい(仮分数の)場合にtrue
+     * @return 分子が分母より大きい(仮分数の)場合、または等しい場合にtrue
      */
     public boolean isImproper() {
-        return Math.abs(mNumerator) > Math.abs(mDenominator);
+        return Math.abs(mNumerator) >= Math.abs(mDenominator);
     }
 
     /**
