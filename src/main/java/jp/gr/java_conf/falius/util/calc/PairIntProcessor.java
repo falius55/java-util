@@ -23,7 +23,7 @@ public class PairIntProcessor {
      * @return
      * @throws ArithmeticException firstおよびsecondにゼロが含まれている場合
      */
-    public int gretestCommonDivisor() {
+    public int greatestCommonDivisor() {
         int x = mFirst > mSecond ? mFirst : mSecond;
         int y = mFirst > mSecond ? mSecond : mFirst;
         int tmp;
@@ -34,6 +34,14 @@ public class PairIntProcessor {
         }
 
         return y;
+    }
+
+    /**
+     * 最小公倍数を求めます
+     * @return
+     */
+    public int leastCommonMultiple() {
+        return mFirst *mSecond / greatestCommonDivisor();
     }
 
 }
