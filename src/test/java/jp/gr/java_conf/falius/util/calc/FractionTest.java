@@ -151,7 +151,7 @@ public class FractionTest {
         int numerator = 90;
         int denominator = 30;
         Fraction frac = Fraction.newInstance(numerator, denominator);
-        assertThat(frac.toIntValue(), is(3));
+        assertThat(frac.intValue(), is(3));
     }
 
     @Test
@@ -159,7 +159,7 @@ public class FractionTest {
         int numerator = 12;
         int denominator = 5;
         Fraction frac = Fraction.newInstance(numerator, denominator);
-        assertThat(frac.toIntValue(), is(2));
+        assertThat(frac.intValue(), is(2));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class FractionTest {
         int numerator = 2;
         int denominator = 5;
         Fraction frac = Fraction.newInstance(numerator, denominator);
-        assertThat(frac.toDoubleValue(), is(0.4d));
+        assertThat(frac.doubleValue(), is(0.4d));
     }
 
     @Test
@@ -184,7 +184,7 @@ public class FractionTest {
         int numerator = 7;
         int denominator = 5;
         Fraction frac = Fraction.newInstance(numerator, denominator);
-        assertThat(frac.toDoubleValue(), is(1.4d));
+        assertThat(frac.doubleValue(), is(1.4d));
     }
 
     @Test

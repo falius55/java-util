@@ -7,7 +7,7 @@ import java.util.Objects;
  * @author "ymiyauchi"
  *
  */
-public class Fraction {
+public class Fraction extends Number {
     private final int mNumerator; // 分子
     private final int mDenominator; // 分母
 
@@ -78,12 +78,23 @@ public class Fraction {
         return Math.abs(mNumerator) == 1;
     }
 
+    @Override
+    public byte byteValue() {
+        return (byte) intValue();
+    }
+
     /**
      * 帯分数の整数部を返します。
      * @return
      */
-    public int toIntValue() {
+    @Override
+    public int intValue() {
         return mNumerator / mDenominator;
+    }
+
+    @Override
+    public long longValue() {
+        return intValue();
     }
 
     /**
@@ -95,8 +106,19 @@ public class Fraction {
         return new Fraction(numerator, mDenominator);
     }
 
-    public Double toDoubleValue() {
+    @Override
+    public double doubleValue() {
         return (double) mNumerator / mDenominator;
+    }
+
+    @Override
+    public float floatValue() {
+        return (float) doubleValue();
+    }
+
+    @Override
+    public short shortValue() {
+        return (short) intValue();
     }
 
     public Fraction plus(int val) {
