@@ -74,10 +74,10 @@ public class RegexTest {
         ;
     }
 
-    private void testAll_DataGroup(Regex.Data data, String[] expected) {
-        assertThat(data.size(), is(expected.length));
-        IntStream.range(0, data.size())
-                .forEach(i -> assertThat(data.group(i), is(expected[i])));
+    private void testAll_DataGroup(PartData partData, String[] expected) {
+        assertThat(partData.size(), is(expected.length));
+        IntStream.range(0, partData.size())
+                .forEach(i -> assertThat(partData.group(i), is(expected[i])));
     }
 
     @Test
@@ -440,9 +440,9 @@ public class RegexTest {
         assertThat(counter, is(expected.length));
     }
 
-    private void test_foreach_nestClass(Regex.Data data, String[] expected) {
+    private void test_foreach_nestClass(PartData partData, String[] expected) {
         int counter = 0;
-        for (String result : data) {
+        for (String result : partData) {
             assertThat(result, is(expected[counter]));
             counter++;
         }
