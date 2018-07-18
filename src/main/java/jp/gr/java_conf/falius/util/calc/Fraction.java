@@ -50,7 +50,7 @@ public class Fraction extends Number {
             mNumerator = 0;
             mDenominator = 1;
         } else {
-            int greatestCommonDivisor = PairIntProcessor.newInstance(numerator, denominator).gretestCommonDivisor();
+            int greatestCommonDivisor = PairIntProcessor.newInstance(numerator, denominator).greatestCommonDivisor();
             mNumerator = numerator / greatestCommonDivisor;
             mDenominator = denominator / greatestCommonDivisor;
         }
