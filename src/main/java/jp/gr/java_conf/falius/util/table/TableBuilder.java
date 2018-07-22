@@ -12,6 +12,7 @@ import java.util.Set;
 import jp.gr.java_conf.falius.util.range.StringRange;
 
 /**
+ *
  * <p>
  * データを格納し、表を作成するクラス
  * <pre>
@@ -22,7 +23,7 @@ import jp.gr.java_conf.falius.util.range.StringRange;
  * // さらに続けてadd(String, Object)で挿入列を指定してデータを渡す
  * tb.insert("Anna")
  *      .add("性別", "女")
- *       .add("年齢", 16);
+ *      .add("年齢", 16);
  * tb.insert("Alex")
  *      .add("性別", "男")
  *      .add("年齢", 21);
@@ -56,6 +57,9 @@ import jp.gr.java_conf.falius.util.range.StringRange;
  *
  *<p>
  * プラットフォームにより表示がずれることがあります。
+ *
+ * @since 1.1.1
+ * @version 1.2.0
  */
 
 public class TableBuilder {

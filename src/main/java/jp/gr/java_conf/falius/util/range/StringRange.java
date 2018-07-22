@@ -7,6 +7,8 @@ import java.util.Iterator;
  * 文字列を１文字ずつイテレートするクラスです。
  * @author "ymiyauchi"
  *
+ * @since 1.1.1
+ *
  */
 public class StringRange implements Iterable<String>, Iterator<String> {
     private final String[] mArray;

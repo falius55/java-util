@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 /**
      *  各マッチ文字列の指定されたインデックスのグルーピング文字列をイテレートするIterableであり、Iteratorです
+     *  @since 1.2.0
      */
 class GroupIterator implements Iterator<String>, Iterable<String> {
     private final int mIndex;

@@ -10,6 +10,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
+/**
+ *
+ * @author "ymiyauchi"
+ *
+ * @param <E>
+ * @since 1.0
+ */
 public class MultipleTreeNode<E> implements TreeNode<E> {
 
     private MultipleTreeNode<E> mParent = null;

@@ -8,6 +8,8 @@ import java.util.List;
      *  <p>正規表現にマッチした各部分文字列を扱う内部クラスです
      *  <p>Regexインスタンスからfind(int)に有効値を渡すことで取り出せます
      *  <p>Dataインスタンスのgroup(int)を使うことで扱っている部分文字列全体とグルーピングした文字列を取り出せます
+     *
+     *  @since 1.2.0
      */
 public class PartData implements Iterable<String> {
     private static final String[] EMPTY_STRING_ARRAY = new String[0]; // toArray()で使いまわす空の配列
