@@ -2,12 +2,13 @@ package jp.gr.java_conf.falius.util.regex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +91,10 @@ public class Regex implements Iterable<String> {
     // 可変オブジェクトにしている
     // そのため、Mapなどのkeyとしては不適
     // マルチスレッドでのインスタンス共有も不適
+
+    private static final Matcher mSlashMatcher; // スラッシュで囲まれた正規表現の形になっているかどうかを判別する
+    private static final String[] EMPTY_STRING_ARRAY = new String[0]; // toArray()で使いまわす空の配列
+
     private Pattern mPattern = null;
     private Matcher mMatcher = null;
     private String mRegex = null; // 正規表現
@@ -97,11 +102,12 @@ public class Regex implements Iterable<String> {
     private boolean mIsOptionG = false; // gオプションの有無
     private int mPatternFlag = 0; // 有効になっているオプションの値
 
-    private List<Data> mDataList = new ArrayList<>(); // マッチした各部分文字列を扱うオブジェクトのリスト
+    private List<PartData> mDataList = new ArrayList<>(); // マッチした各部分文字列を扱うオブジェクトのリスト
     private List<String> mMatchList = new ArrayList<>(); // マッチした各部分文字列のリスト
 
-    private static final Matcher mSlashMatcher; // スラッシュで囲まれた正規表現の形になっているかどうかを判別する
-    private static final String[] EMPTY_STRING_ARRAY = new String[0]; // toArray()で使いまわす空の配列
+    private enum ResultCode {
+        REGEX_ALL, REGEX, G_OPTION, PATTERN_FLAG;
+    };
 
     static {
         // commentモードでは正規表現中に改行が入ることもあるのでDOTALLモード
@@ -109,17 +115,83 @@ public class Regex implements Iterable<String> {
         mSlashMatcher = slashPattern_.matcher("");
     }
 
-    private Regex(String regex, String target, int patternFlag, boolean isOptionG) {
-        mRegex = regex;
-        mTarget = target;
-        mIsOptionG = isOptionG;
-        mPatternFlag = patternFlag;
+    /**
+     *  ターゲット文字列に正規表現がマッチするのかどうかを表す真偽値を返す静的メソッドです
+     *  matches()とは異なり、一部にでもマッチしていればtrueを返します
+     *  引数は順不同です
+     *  @param  regexOrTarget   スラッシュで囲まれた正規表現、あるいはターゲット文字列
+     *  @param  targetOrRegex   ターゲット文字列、あるいはスラッシュで囲まれた正規表現
+     *  @return マッチするとtrue、そうでなければfalse
+     *  @throws NullPointerException 引数にnullが渡された場合
+     *  @throws IllegalArgumentException    渡された引数によって正規表現とターゲット文字列が揃わなかった場合
+     */
+    public static boolean test(CharSequence regexOrTarget, CharSequence targetOrRegex) {
+        Objects.requireNonNull(targetOrRegex, "targetOrRegex is null");
+
+        Map<ResultCode, String> regexMap = splitStringRegex(regexOrTarget);
+        if (Objects.nonNull(regexMap)) {
+            if (splitStringRegex(targetOrRegex) == null) {
+                throw new IllegalArgumentException("ターゲット文字列がありません");
+            }
+            Pattern pattern = createPattern(
+                    regexMap.get(ResultCode.REGEX), Integer.parseInt(regexMap.get(ResultCode.PATTERN_FLAG)));
+            Matcher matcher = pattern.matcher(targetOrRegex);
+            return matcher.find() ? true : false;
+        } else {
+            regexMap = splitStringRegex(targetOrRegex);
+            if (Objects.isNull(regexMap)) {
+                throw new IllegalArgumentException("正規表現がありません");
+            }
+            Pattern pattern = createPattern(regexMap.get(ResultCode.REGEX),
+                    Integer.parseInt(regexMap.get(ResultCode.PATTERN_FLAG)));
+            Matcher matcher = pattern.matcher(regexOrTarget);
+            return matcher.find() ? true : false;
+        }
+    }
+
+    /**
+     *  ターゲット文字列の１文字目から末尾までの全体が正規表現にマッチしているかどうかの真偽値を返す静的メソッドです
+     *  正規表現の両端に^と$を付与した場合のtest(regexOrTarget, targetOrRegex)と同義となります
+     *  オプション指定は埋め込みフラグを利用してください
+     *  引数は順不同です
+     *  @param  regexOrTarget   スラッシュで囲まれた正規表現、あるいはターゲット文字列
+     *  @param  targetOrRegex ターゲット文字列、あるいはスラッシュで囲まれた正規表現
+     *  @return ターゲット文字列の全領域が正規表現にマッチしていればtrue。そうでなければfalse
+     *  @throws NullPointerException 引数にnullが渡された場合
+     *  @throws IllegalArgumentException    渡された引数によって正規表現とターゲット文字列が揃わなかった場合
+     */
+    public static boolean matches(CharSequence regexOrTarget, CharSequence targetOrRegex) {
+        Objects.requireNonNull(targetOrRegex, "targetOrRegex is null");
+        Map<ResultCode, String> regexMap = splitStringRegex(regexOrTarget);
+        Map<ResultCode, String> targetMap = splitStringRegex(targetOrRegex);
+        if (Objects.isNull(regexMap) && Objects.isNull(targetMap)) {
+            throw new IllegalArgumentException("正規表現がありません");
+        }
+        if (Objects.nonNull(regexMap) && Objects.nonNull(targetMap)) {
+            throw new IllegalArgumentException("ターゲット文字列がありません");
+        }
+
+        if (Objects.nonNull(regexMap)) {
+            // regexOrTarget = 正規表現
+            return Pattern.matches(regexMap.get(ResultCode.REGEX), targetOrRegex);
+        } else {
+            // targetOrRegex = 正規表現
+            return Pattern.matches(splitStringRegex(targetOrRegex).get(ResultCode.REGEX), regexOrTarget);
+        }
+    }
+
+    // 正規表現(スラッシュなし文字列)とパターンフラグ(Patternフィールドの論理和)からPatternを作成する
+    private static Pattern createPattern(String regex, int patternFlag) {
+        if (patternFlag > 0) {
+            return Pattern.compile(regex, patternFlag);
+        }
+        return Pattern.compile(regex);
     }
 
     // 正規表現文字列を解析して、結果をマップで返す
     // 正規表現の形式になっていなければnullを返す
     // ^/(.+)/([gimsudxl]*)$
-    private static Map<String, String> splitStringRegex(CharSequence regexOrTarget) {
+    private static Map<ResultCode, String> splitStringRegex(CharSequence regexOrTarget) {
         Objects.requireNonNull(regexOrTarget, "regexOrTarget is null");
 
         mSlashMatcher.reset(regexOrTarget);
@@ -128,25 +200,18 @@ public class Regex implements Iterable<String> {
             return null;
         }
 
-        Map<String, String> resultMap = new HashMap<>();
+        Map<ResultCode, String> resultMap = new EnumMap<>(ResultCode.class);
         // 渡された正規表現全体
-        resultMap.put("regexAll", mSlashMatcher.group());
+        resultMap.put(ResultCode.REGEX_ALL, mSlashMatcher.group());
         // 囲んでいるスラッシュやオプション文字列を除いた正規表現の本体
-        resultMap.put("regex", mSlashMatcher.group(1));
+        resultMap.put(ResultCode.REGEX, mSlashMatcher.group(1));
 
         // オプション各種
-        String strOption = mSlashMatcher.group(2);
-        resultMap.put("g_option", strOption.contains("g") ? "true" : "false"); // gオプションの有無
-        boolean isOptionI = strOption.contains("i"); // 大文字と小文字を区別しない
-        boolean isOptionM = strOption.contains("m"); // 復数行モード
-        boolean isOptionS = strOption.contains("s"); // DOTALLモード
-        boolean isOptionU = strOption.contains("u"); // Unicodeに準拠した大文字と小文字を区別しないマッチング
-        boolean isOptionD = strOption.contains("d"); // Unixラインモード
-        boolean isOptionX = strOption.contains("x"); // パターン内で空白とコメントを使用
-        boolean isOptionL = strOption.contains("l"); // パターンのリテラル構文解析を有効
-        int patternFlag = computePatternFlag(
-                isOptionI, isOptionM, isOptionS, isOptionU, isOptionD, isOptionX, isOptionL);
-        resultMap.put("pattern_flag", String.valueOf(patternFlag)); // 修飾子の種類
+        String strOptions = mSlashMatcher.group(2);
+        resultMap.put(ResultCode.G_OPTION, strOptions.contains("g") ? "true" : "false"); // gオプションの有無
+        Set<Option> options = Option.optionsFrom(strOptions);
+        int patternFlag = Option.computePatternFlag(options);
+        resultMap.put(ResultCode.PATTERN_FLAG, String.valueOf(patternFlag)); // 修飾子の種類
 
         return resultMap;
     }
@@ -174,13 +239,13 @@ public class Regex implements Iterable<String> {
      *  @throws NullPointerException 引数にnullが渡された場合
      */
     public static Regex newInstance(CharSequence regexOrTarget) {
-        Map<String, String> regexMap = splitStringRegex(regexOrTarget);
-        if (regexMap != null) {
+        Map<ResultCode, String> regexMap = splitStringRegex(regexOrTarget);
+        if (Objects.nonNull(regexMap)) {
             // 引数は正規表現
-            boolean optionG = Boolean.parseBoolean(regexMap.get("g_option"));
-            int patternFlag = Integer.parseInt(regexMap.get("pattern_flag"));
+            boolean optionG = Boolean.parseBoolean(regexMap.get(ResultCode.G_OPTION));
+            int patternFlag = Integer.parseInt(regexMap.get(ResultCode.PATTERN_FLAG));
             return new Regex(
-                    /* regex = */ regexMap.get("regex"), /* target = */ null,
+                    /* regex = */ regexMap.get(ResultCode.REGEX), /* target = */ null,
                     /* patternFlag = */ patternFlag, /* isOptionG = */ optionG);
         } else {
             // 引数は調査対象文字列
@@ -188,6 +253,30 @@ public class Regex implements Iterable<String> {
                     /* regex = */ null, /* target = */ regexOrTarget.toString(),
                     /* patternFlag */ 0, /* isOptionG = */ false);
         }
+    }
+
+    private Regex(String regex, String target, int patternFlag, boolean isOptionG) {
+        mRegex = regex;
+        mTarget = target;
+        mIsOptionG = isOptionG;
+        mPatternFlag = patternFlag;
+    }
+
+    /**
+     * 渡されたターゲット文字列を返します
+     @return ターゲット文字列。まだ渡されていなければnull
+     */
+    public String getTarget() {
+        return mTarget;
+    }
+
+    /**
+     *  渡された正規表現を返します
+     *  各種オプションや/(スラッシュ)は含まれず、/(スラッシュ)に囲まれた部分のみであることにご注意ください
+     *  @return 正規表現。まだ渡されていなければnull
+     */
+    public String getRegex() {
+        return mRegex;
     }
 
     /**
@@ -199,20 +288,23 @@ public class Regex implements Iterable<String> {
      */
     public Regex match(CharSequence targetOrRegex) {
         // すでに一度マッチさせていたインスタンスを再利用する場合
-        if (mMatcher != null)
+        if (Objects.nonNull(mMatcher)) {
             return renewMatch(targetOrRegex);
+        }
 
-        Map<String, String> regexMap = splitStringRegex(targetOrRegex);
+        Map<ResultCode, String> regexMap = splitStringRegex(targetOrRegex);
 
-        if ((mRegex == null && regexMap == null) || (mTarget == null && regexMap != null))
+        if ((Objects.isNull(mRegex) && Objects.isNull(regexMap))
+                || (Objects.isNull(mTarget) && Objects.nonNull(regexMap))) {
             throw new IllegalArgumentException(
                     mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
+        }
 
-        if (regexMap != null) {
+        if (Objects.nonNull(regexMap)) {
             // 引数は正規表現
-            mRegex = regexMap.get("regex");
-            mIsOptionG = Boolean.parseBoolean(regexMap.get("g_option"));
-            mPatternFlag = Integer.parseInt(regexMap.get("pattern_flag"));
+            mRegex = regexMap.get(ResultCode.REGEX);
+            mIsOptionG = Boolean.parseBoolean(regexMap.get(ResultCode.G_OPTION));
+            mPatternFlag = Integer.parseInt(regexMap.get(ResultCode.PATTERN_FLAG));
         } else {
             // 引数は調査対象文字列
             mTarget = targetOrRegex.toString();
@@ -224,51 +316,14 @@ public class Regex implements Iterable<String> {
         return this.build();
     }
 
-    // 正規表現(スラッシュなし文字列)とパターンフラグ(Patternフィールドの論理和)からPatternを作成する
-    private static Pattern createPattern(String regex, int patternFlag) {
-        if (patternFlag > 0) {
-            return Pattern.compile(regex, patternFlag);
-        }
-        return Pattern.compile(regex);
-    }
-
-    // オプションの有無から、パターンフラグ(Patternフィールドの論理和)を計算する
-    private static int computePatternFlag(
-            boolean isOptionI, boolean isOptionM, boolean isOptionS, boolean isOptionU,
-            boolean isOptionD, boolean isOptionX, boolean isOptionL) {
-        int patternFlag = 0;
-        if (isOptionI) {
-            patternFlag |= Pattern.CASE_INSENSITIVE;
-        }
-        if (isOptionM) {
-            patternFlag |= Pattern.MULTILINE;
-        }
-        if (isOptionS) {
-            patternFlag |= Pattern.DOTALL;
-        }
-        if (isOptionU) {
-            patternFlag |= Pattern.UNICODE_CASE;
-        }
-        if (isOptionD) {
-            patternFlag |= Pattern.UNIX_LINES;
-        }
-        if (isOptionX) {
-            patternFlag |= Pattern.COMMENTS;
-        }
-        if (isOptionL) {
-            patternFlag |= Pattern.LITERAL;
-        }
-        return patternFlag;
-    }
-
     // PatternとMatcherのいずれかのみ変更し、もう一方はそのまま
     private Regex renewMatch(CharSequence targetOrRegex) {
-        Map<String, String> regexMap = splitStringRegex(targetOrRegex);
-        if (regexMap != null) {
+        Map<ResultCode, String> regexMap = splitStringRegex(targetOrRegex);
+        if (Objects.nonNull(regexMap)) {
             // 引数は正規表現
-            mRegex = regexMap.get("regex");
-            mIsOptionG = Boolean.parseBoolean(regexMap.get("g_option"));
-            mPatternFlag = Integer.parseInt(regexMap.get("pattern_flag"));
+            mRegex = regexMap.get(ResultCode.REGEX);
+            mIsOptionG = Boolean.parseBoolean(regexMap.get(ResultCode.G_OPTION));
+            mPatternFlag = Integer.parseInt(regexMap.get(ResultCode.PATTERN_FLAG));
             mPattern = createPattern(mRegex, mPatternFlag);
             mMatcher = mMatcher.usePattern(mPattern);
         } else {
@@ -289,8 +344,8 @@ public class Regex implements Iterable<String> {
         // 部分文字列ごとに内部データを作る
         mDataList.clear();
         List<String> temp;
-        while ((temp = createMatchList(mMatcher)) != null) {
-            mDataList.add(new Data(temp));
+        while (Objects.nonNull(temp = createMatchList(mMatcher))) {
+            mDataList.add(new PartData(temp));
         }
 
         mMatcher.reset();
@@ -304,19 +359,18 @@ public class Regex implements Iterable<String> {
         if (!mat.find()) {
             return null;
         }
-        List<String> list = new ArrayList<String>();
+        List<String> ret = new ArrayList<String>();
 
-        list.add(mat.group()); // マッチ文字列全体
+        ret.add(mat.group()); // マッチ文字列全体
 
         // matcher.groupCount()は、あくまでグループの数なのでマッチ文字列全体のmatcher.group(0)は含まない
         // グルーピングが0なら、matcher.group(0)も例外を投げる
-        String temp;
         for (int i = 1, cnt = mat.groupCount() + 1; i < cnt; i++) {
-            temp = mat.group(i);
-            list.add(temp);
+            String temp = mat.group(i);
+            ret.add(temp);
         }
 
-        return list;
+        return ret;
     }
 
     // targetのうち、正規表現regexに該当する部分を抜き出して配列にする(最初のマッチ部分のみ)
@@ -342,11 +396,8 @@ public class Regex implements Iterable<String> {
      *  @throws NoSuchElementException マッチした部分文字列がない(matchCount() == 0)場合
      *  @throws IndexOutOfBoundsException 引数が有効範囲外の場合
      */
-    public Data find(int index) {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+    public PartData find(int index) {
+        checkOrThrow();
         if (matchCount() == 0) {
             throw new NoSuchElementException("マッチした部分文字列がありません");
         }
@@ -383,10 +434,7 @@ public class Regex implements Iterable<String> {
      *  @throws IndexOutOfBoundsException 渡されたインデックスが有効範囲外の場合
      */
     public String group(int index) {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+        checkOrThrow();
         if (matchCount() == 0) {
             throw new NoSuchElementException("マッチした部分文字列がありません");
         }
@@ -412,11 +460,7 @@ public class Regex implements Iterable<String> {
      *  @throws java.lang.IllegalStateException 正規表現とターゲット文字列が揃っていない状態で呼び出された場合
      */
     public String[] toArray() {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
-
+        checkOrThrow();
         if (hasOptionG()) {
             return groupCount() > 0 ? mMatchList.toArray(EMPTY_STRING_ARRAY) : EMPTY_STRING_ARRAY;
         } else {
@@ -430,7 +474,7 @@ public class Regex implements Iterable<String> {
      */
     @Override
     public String toString() {
-        if (mRegex == null || mTarget == null || matchCount() == 0) {
+        if (Objects.isNull(mRegex) || Objects.isNull(mTarget) || matchCount() == 0) {
             return Arrays.asList(EMPTY_STRING_ARRAY).toString();
         }
         if (hasOptionG()) {
@@ -447,10 +491,7 @@ public class Regex implements Iterable<String> {
      *  @throws java.lang.IllegalStateException 正規表現とターゲット文字列が揃っていない状態で呼び出された場合
      */
     public int matchCount() {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+        checkOrThrow();
         return mDataList.size();
     }
 
@@ -461,10 +502,7 @@ public class Regex implements Iterable<String> {
      *  @throws java.lang.IllegalStateException 正規表現とターゲット文字列が揃っていない状態で呼び出された場合
      */
     public int groupCount() {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+        checkOrThrow();
         if (hasOptionG()) {
             return mMatchList.size();
         } else {
@@ -479,10 +517,7 @@ public class Regex implements Iterable<String> {
      *  @throws java.lang.IllegalStateException 正規表現とターゲット文字列が揃っていない状態で呼び出された場合
      */
     public String replaceAll(String replacement) {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+        checkOrThrow();
         return mMatcher.replaceAll(replacement);
     }
 
@@ -493,44 +528,8 @@ public class Regex implements Iterable<String> {
      *  @throws java.lang.IllegalStateException 正規表現とターゲット文字列が揃っていない状態で呼び出された場合
      */
     public boolean test() {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+        checkOrThrow();
         return mDataList.size() > 0;
-    }
-
-    /**
-     *  ターゲット文字列に正規表現がマッチするのかどうかを表す真偽値を返す静的メソッドです
-     *  matches()とは異なり、一部にでもマッチしていればtrueを返します
-     *  引数は順不同です
-     *  @param  regexOrTarget   スラッシュで囲まれた正規表現、あるいはターゲット文字列
-     *  @param  targetOrRegex   ターゲット文字列、あるいはスラッシュで囲まれた正規表現
-     *  @return マッチするとtrue、そうでなければfalse
-     *  @throws NullPointerException 引数にnullが渡された場合
-     *  @throws IllegalArgumentException    渡された引数によって正規表現とターゲット文字列が揃わなかった場合
-     */
-    public static boolean test(CharSequence regexOrTarget, CharSequence targetOrRegex) {
-        Objects.requireNonNull(targetOrRegex, "targetOrRegex is null");
-
-        Map<String, String> regexMap = splitStringRegex(regexOrTarget);
-        if (regexMap != null) {
-            if (splitStringRegex(targetOrRegex) == null) {
-                throw new IllegalArgumentException("ターゲット文字列がありません");
-            }
-            Pattern pattern = createPattern(
-                    regexMap.get("regex"), Integer.parseInt(regexMap.get("pattern_flag")));
-            Matcher matcher = pattern.matcher(targetOrRegex);
-            return matcher.find() ? true : false;
-        } else {
-            regexMap = splitStringRegex(targetOrRegex);
-            if (regexMap == null) {
-                throw new IllegalArgumentException("正規表現がありません");
-            }
-            Pattern pattern = createPattern(regexMap.get("regex"), Integer.parseInt(regexMap.get("pattern_flag")));
-            Matcher matcher = pattern.matcher(regexOrTarget);
-            return matcher.find() ? true : false;
-        }
     }
 
     /**
@@ -540,59 +539,8 @@ public class Regex implements Iterable<String> {
      *  @throws java.lang.IllegalStateException 正規表現とターゲット文字列が揃っていない状態で呼び出された場合
      */
     public boolean matches() {
-        if (mRegex == null || mTarget == null) {
-            throw new IllegalStateException(
-                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
-        }
+        checkOrThrow();
         return mMatcher.matches();
-    }
-
-    /**
-     *  ターゲット文字列の１文字目から末尾までの全体が正規表現にマッチしているかどうかの真偽値を返す静的メソッドです
-     *  正規表現の両端に^と$を付与した場合のtest(regexOrTarget, targetOrRegex)と同義となります
-     *  オプション指定は埋め込みフラグを利用してください
-     *  引数は順不同です
-     *  @param  regexOrTarget   スラッシュで囲まれた正規表現、あるいはターゲット文字列
-     *  @param  targetOrRegex ターゲット文字列、あるいはスラッシュで囲まれた正規表現
-     *  @return ターゲット文字列の全領域が正規表現にマッチしていればtrue。そうでなければfalse
-     *  @throws NullPointerException 引数にnullが渡された場合
-     *  @throws IllegalArgumentException    渡された引数によって正規表現とターゲット文字列が揃わなかった場合
-     */
-    public static boolean matches(CharSequence regexOrTarget, CharSequence targetOrRegex) {
-        Objects.requireNonNull(targetOrRegex, "targetOrRegex is null");
-        Map<String, String> regexMap = splitStringRegex(regexOrTarget);
-        Map<String, String> targetMap = splitStringRegex(targetOrRegex);
-        if (regexMap == null && targetMap == null) {
-            throw new IllegalArgumentException("正規表現がありません");
-        }
-        if (regexMap != null && targetMap != null) {
-            throw new IllegalArgumentException("ターゲット文字列がありません");
-        }
-
-        if (regexMap != null) {
-            // regexOrTarget = 正規表現
-            return Pattern.matches(regexMap.get("regex"), targetOrRegex);
-        } else {
-            // targetOrRegex = 正規表現
-            return Pattern.matches(splitStringRegex(targetOrRegex).get("regex"), regexOrTarget);
-        }
-    }
-
-    /**
-     * 渡されたターゲット文字列を返します
-     @return ターゲット文字列。まだ渡されていなければnull
-     */
-    public String getTarget() {
-        return mTarget;
-    }
-
-    /**
-     *  渡された正規表現を返します
-     *  各種オプションや/(スラッシュ)は含まれず、/(スラッシュ)に囲まれた部分のみであることにご注意ください
-     *  @return 正規表現。まだ渡されていなければnull
-     */
-    public String getRegex() {
-        return mRegex;
     }
 
     /**
@@ -605,25 +553,25 @@ public class Regex implements Iterable<String> {
         if (hasOptionG()) {
             sb.append('g');
         }
-        if (hasOption(Pattern.CASE_INSENSITIVE)) {
+        if (Option.hasOption(mPatternFlag, "i")) {
             sb.append('i');
         }
-        if (hasOption(Pattern.MULTILINE)) {
+        if (Option.hasOption(mPatternFlag, "m")) {
             sb.append('m');
         }
-        if (hasOption(Pattern.DOTALL)) {
+        if (Option.hasOption(mPatternFlag, "s")) {
             sb.append('s');
         }
-        if (hasOption(Pattern.UNICODE_CASE)) {
+        if (Option.hasOption(mPatternFlag, "u")) {
             sb.append('u');
         }
-        if (hasOption(Pattern.UNIX_LINES)) {
+        if (Option.hasOption(mPatternFlag, "d")) {
             sb.append('d');
         }
-        if (hasOption(Pattern.COMMENTS)) {
+        if (Option.hasOption(mPatternFlag, "x")) {
             sb.append('x');
         }
-        if (hasOption(Pattern.LITERAL)) {
+        if (Option.hasOption(mPatternFlag, "l")) {
             sb.append('l');
         }
 
@@ -644,7 +592,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にiオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionI() {
-        return hasOption(Pattern.CASE_INSENSITIVE);
+        return Option.hasOption(mPatternFlag, "i");
     }
 
     /**
@@ -653,7 +601,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にmオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionM() {
-        return hasOption(Pattern.MULTILINE);
+        return Option.hasOption(mPatternFlag, "m");
     }
 
     /**
@@ -662,7 +610,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にsオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionS() {
-        return hasOption(Pattern.DOTALL);
+        return Option.hasOption(mPatternFlag, "s");
     }
 
     /**
@@ -671,7 +619,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にuオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionU() {
-        return hasOption(Pattern.UNICODE_CASE);
+        return Option.hasOption(mPatternFlag, "u");
     }
 
     /**
@@ -680,7 +628,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にdオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionD() {
-        return hasOption(Pattern.UNIX_LINES);
+        return Option.hasOption(mPatternFlag, "d");
     }
 
     /**
@@ -689,7 +637,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にxオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionX() {
-        return hasOption(Pattern.COMMENTS);
+        return Option.hasOption(mPatternFlag, "x");
     }
 
     /**
@@ -697,12 +645,7 @@ public class Regex implements Iterable<String> {
      *  @return 渡された正規表現の/(スラッシュ)の外側にlオプションが指定されていればtrue。それ以外はfalse
      */
     public boolean hasOptionL() {
-        return hasOption(Pattern.LITERAL);
-    }
-
-    // フィールドのmPatternFlagにpattenFlagが含まれるか否かをビット演算で判定する
-    private boolean hasOption(int patternFlag) {
-        return (mPatternFlag & patternFlag) == patternFlag;
+        return Option.hasOption(mPatternFlag, "l");
     }
 
     /**
@@ -716,6 +659,13 @@ public class Regex implements Iterable<String> {
             return mMatchList.iterator(); // 各マッチ文字列をイテレートする
         } else {
             return find(0).iterator(); // 最初のマッチ文字列とそのグルーピング文字列をイテレートする
+        }
+    }
+
+    private void checkOrThrow() {
+        if (Objects.isNull(mRegex) || Objects.isNull(mTarget)) {
+            throw new IllegalStateException(
+                    mRegex == null ? "正規表現がありません" : "ターゲット文字列がありません");
         }
     }
 
@@ -738,128 +688,4 @@ public class Regex implements Iterable<String> {
         return new GroupIterator(index, this);
     }
 
-    /**
-     *  各マッチ文字列の指定されたインデックスのグルーピング文字列をイテレートするIterableであり、Iteratorです
-     */
-    static class GroupIterator implements Iterator<String>, Iterable<String> {
-        private final int mIndex;
-        private final int mSize;
-        private final Regex mRegex;
-        private int mIndexCounter = -1;
-
-        private GroupIterator(int index, Regex regex) {
-            mIndex = index;
-            mRegex = regex;
-            mSize = regex.matchCount();
-        }
-
-        /**
-         *  次の要素の有無を返します
-         */
-        public boolean hasNext() {
-            return mIndexCounter + 1 < mSize;
-        }
-
-        /**
-         *  次の要素を返します
-         */
-        public String next() {
-            mIndexCounter++;
-            return mRegex.find(mIndexCounter).group(mIndex);
-        }
-
-        /**
-         *  自身を返します
-         */
-        public Iterator<String> iterator() {
-            return this;
-        }
-    }
-
-    /**
-     *  <p>正規表現にマッチした各部分文字列を扱う内部クラスです
-     *  <p>Regexインスタンスからfind(int)に有効値を渡すことで取り出せます
-     *  <p>Dataインスタンスのgroup(int)を使うことで扱っている部分文字列全体とグルーピングした文字列を取り出せます
-     */
-    public static class Data implements Iterable<String> {
-        // data.get(0) : 扱う部分文字列全体
-        // data.get(1) : 扱う部分文字列のうちグループ化された文字列のひとつ目
-        private final List<String> mData;
-
-        private Data(List<String> data) {
-            mData = new ArrayList<String>(data);
-        }
-
-        /**
-         *  マッチ箇所の文字列を返します
-         *  group(0)と同義です
-         *  @return マッチ箇所の文字列
-         */
-        public String group() {
-            return group(0);
-        }
-
-        /**
-         *  マッチした全体文字列及びグルーピング文字列を返します
-         *  @param  index   取り出す文字列のインデックス。0ならマッチ箇所全体、1ならひとつ目のグルーピング文字列
-         *  @return マッチした全体文字列及びグルーピング文字列。見つからなければnull
-         *  @throws IndexOutOfBoundsException 引数に有効範囲外のインデックスが渡された場合
-         */
-        public String group(int index) {
-            if (index < 0 || index > size() - 1) {
-                throw new IndexOutOfBoundsException(
-                        String.format("有効なインデックスは0から%dです : passed index=%d", size() - 1, index));
-            }
-            return mData.get(index);
-        }
-
-        /**
-         *  扱うデータの数を返します
-         *  全体文字列とグルーピングの数の合計なので、groupCount()+1と同義です
-         *  @return 扱うデータの数
-         */
-        public int size() {
-            return mData.size();
-        }
-
-        /**
-         *  グルーピングの数を返します
-         *  @return グルーピングの数
-         */
-        public int groupCount() {
-            return mData.size() - 1;
-        }
-
-        /**
-         *  保持しているデータを配列にして返します
-         *  @return 扱うデータの配列。[0]にマッチ文字列全体が入り、[1]にひとつ目のグループを表す文字列が入る
-         */
-        public String[] toArray() {
-            return mData.toArray(EMPTY_STRING_ARRAY);
-        }
-
-        /**
-         *  扱うデータの文字列表現を返します
-         */
-        @Override
-        public String toString() {
-            return mData.toString();
-        }
-
-        /**
-         *  扱うデータが存在するか否かの真偽値です
-         *  常にtrueを返します
-         *  @return true
-         */
-        public boolean test() {
-            return true;
-        }
-
-        /**
-         *  保持しているデータ(扱っているマッチ文字列全体及び各グルーピング文字列)のイテレータを返します
-         */
-        public Iterator<String> iterator() {
-            return mData.iterator();
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package jp.gr.java_conf.falius.util.check;
+package jp.gr.java_conf.falius.util.list;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+
+import jp.gr.java_conf.falius.util.list.CheckList;
 
 public class CheckListTest {
 

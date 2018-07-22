@@ -12,8 +12,6 @@ import java.util.Set;
 import jp.gr.java_conf.falius.util.range.StringRange;
 
 /**
- * @deprecated プラットフォームにより表示がずれることがあります。
- *
  * <p>
  * データを格納し、表を作成するクラス
  * <pre>
@@ -21,24 +19,24 @@ import jp.gr.java_conf.falius.util.range.StringRange;
  * // コンストラクタに列名を渡してインスタンスを作成
  * TableBuilder tb = new TableBuilder("名前","性別","年齢", "イニシャル");
  * // insert(String)で挿入行を指定して内部クラスのインスタンスを取得
- * // さらに続けてadd(String, Object)で挿入行とデータを渡す
+ * // さらに続けてadd(String, Object)で挿入列を指定してデータを渡す
  * tb.insert("Anna")
- * .add("性別", "女")
- * .add("年齢", 16);
+ *      .add("性別", "女")
+ *       .add("年齢", 16);
  * tb.insert("Alex")
- * .add("性別", "男")
- * .add("年齢", 21);
+ *      .add("性別", "男")
+ *      .add("年齢", 21);
  * tb.insert("Kai")
- * .add(1, "男")
- * .add(2, 12)
- * .add(0, "カイ"); // 最初の行の値を変更すると、識別名とは別に変更される
+ *      .add(1, "男")
+ *      .add(2, 12)
+ *      .add(0, "カイ"); // 最初の行の値を変更すると、識別名とは別に変更される
  * <p>
  * Object alex = new Object() {
- * String name = "Alex";
- * <p>
- * public String toString() {
- * return name;
- * }
+ *      private String name = "Alex";
+ *
+ *      public String toString() {
+ *          return name;
+ *      }
  * };
  * tb.insert("Anna").add(3,'A');
  * // オブジェクトを行の識別名として使用することもできる。特に一行目の名前を指定していなければtoString()の戻り値が行名として使われる
@@ -49,12 +47,15 @@ import jp.gr.java_conf.falius.util.range.StringRange;
  * </pre>
  * <p>
  * 上の例で作成される表
- * +-----+-----+-----+-----------+
- * |名前 |性別 |年齢 |イニシャル |
+ * +-----+-----+-----+--------+
+ * |名前  |性別 |年齢 |イニシャル |
  * |Anna |女   |16   |A          |
- * |Alex |男   |21   |A          |
- * |カイ |男   |12   |K          |
- * +-----+-----+-----+-----------+
+ * |Alex  |男    |21   |A          |
+ * |カイ    |男    |12   |K          |
+ * +-----+-----+-----+--------+
+ *
+ *<p>
+ * プラットフォームにより表示がずれることがあります。
  */
 
 public class TableBuilder {
@@ -145,8 +146,9 @@ public class TableBuilder {
         table.add(header.toString());
 
         // 各行の文字列を作成する
-        for (Map<String, Object> row : mDataMap.values())
+        for (Map<String, Object> row : mDataMap.values()) {
             table.add(toRowString(lenMap, row));
+        }
         table.add(separator);
         return table;
     }
@@ -171,10 +173,24 @@ public class TableBuilder {
      *
      * @return このオブジェクトの参照
      */
-    public TableBuilder print() {
-        for (String line : build())
+    public TableBuilder println() {
+        for (String line : build()) {
             System.out.println(line);
+        }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        List<String> result = build();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0, size = result.size(); i < size; i++) {
+            sb.append(result.get(i));
+            if (i != size - 1) {
+                sb.append(System.lineSeparator());
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -255,51 +271,5 @@ public class TableBuilder {
             ret.append(padChar);
         }
         return ret.toString();
-    }
-
-    /**
-     * データ挿入を請け負うクラス
-     */
-    public static class InsertAgency {
-        private List<String> mColumnTitles;
-        private Map<String, Object> mRowData;
-
-        /**
-         * @param columnTitles 列名のリスト
-         * @param rowData          追加行の各データのマップ
-         */
-        private InsertAgency(List<String> columnTitles, Map<String, Object> rowData) {
-            mColumnTitles = columnTitles;
-            mRowData = rowData;
-        }
-
-        /**
-         * 指定された列に、データを挿入します。nullが渡された場合は、その列のデータは空であるものとします
-         *
-         * @param column 挿入する列の名前
-         * @param data   挿入するデータ。nullが渡されるとデータを空にする
-         * @return このオブジェクトの参照
-         * @throws IllegalArgumentException インスタンス作成時に設定した列名以外の名前の列に挿入しようとした場合
-         */
-        public InsertAgency add(String column, Object data) {
-            if (!mColumnTitles.contains(column)) {
-                throw new IllegalArgumentException(
-                        String.format("列名'%s'はこの表に設定されていません", column));
-            }
-            mRowData.put(column, data);
-            return this;
-        }
-
-        /**
-         * 指定されたインデックスの列に、データを挿入します
-         *
-         * @param columnIndex 挿入する列のインデックス
-         * @param data        挿入するデータ。nullが渡されるとデータを空にする
-         * @return このオブジェクトの参照
-         * @throws IndexOutOfBoundsException 指定されたインデックスの列が設定されていない場合
-         */
-        public InsertAgency add(int columnIndex, Object data) {
-            return add(mColumnTitles.get(columnIndex), data);
-        }
     }
 }
