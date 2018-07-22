@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * データ挿入を請け負うクラス
  */
-class InsertAgency {
+public class InsertAgency {
     private List<String> mColumnTitles;
     private Map<String, Object> mRowData;
 
