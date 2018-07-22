@@ -8,6 +8,7 @@ import java.util.Map;
  * <p>
  * startメソッドの呼び出しからendメソッドの呼び出しまでにかかった時間を保持するクラスです。
  * @author "ymiyauchi"
+ * @since 1.1
  *
  */
 public class Timer {

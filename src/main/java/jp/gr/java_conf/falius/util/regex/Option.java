@@ -7,6 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ *
+ * @author "ymiyauchi"
+ * @since 1.2.0
+ *
+ */
 enum Option {
     CASE_INSENSITIVE("i", Pattern.CASE_INSENSITIVE, "大文字と小文字を区別しない "),
     MULTILINE("m", Pattern.MULTILINE, "復数行モード "),

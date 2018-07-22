@@ -85,6 +85,9 @@ import java.util.regex.Pattern;
  *  System.out.println(result); // "SAMPLE", "M" : Regex.Dataオブジェクトもイテレータを持っている
  *}
  * }</pre>
+ *
+ * @since 1.0
+ * @version 1.2.0
  */
 public class Regex implements Iterable<String> {
     // ひとつの正規表現に対してmatch()によって異なる対象文字列を次々マッチさせていくという使い方を可能にするため、

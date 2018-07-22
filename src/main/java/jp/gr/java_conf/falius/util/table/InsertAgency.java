@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * データ挿入を請け負うクラス
+ * @since 1.2.0
  */
 class InsertAgency {
     private List<String> mColumnTitles;

@@ -4,6 +4,13 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
+/**
+ *
+ * @author "ymiyauchi"
+ *
+ * @param <E>
+ * @since 1.0
+ */
 public interface TreeNode<E> extends Iterable<TreeNode<E>> {
 
     E getElem();

@@ -18,6 +18,8 @@ import java.util.Set;
  * @author "ymiyauchi"
  *
  * @param <E> 保持する要素の型
+ * @since 1.0
+ * @version 1.2.0
  */
 public class CheckList<E> implements Checkable<E>, Iterable<E>, List<E> {
     private final List<Entry<E>> mEntries = new ArrayList<>();

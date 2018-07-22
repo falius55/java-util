@@ -9,6 +9,10 @@ import java.util.Iterator;
  * <p>
  * stepを省略すると１として扱われ、さらにstartを省略すると０から始まります。
  * </p>
+ *
+ * @since 1.1
+ * @version 1.1.2
+ * @version 1.1.3
  */
 
 public class IntRange implements Iterable<Integer>, Iterator<Integer> {
@@ -76,6 +80,7 @@ public class IntRange implements Iterable<Integer>, Iterator<Integer> {
      * インデックスも必要な場合はIterator#forEachRemainingを利用してください。
      * このメソッドはこのオブジェクトをイテレータとして使用するため、内部の状態が変化します。
      * @param runnable
+     * @since 1.1.3
      */
     public void simpleForEach(Runnable runnable) {
         for (int i : this) {

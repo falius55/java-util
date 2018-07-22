@@ -1,5 +1,11 @@
 package jp.gr.java_conf.falius.util;
 
+/**
+ * 配列を処理するユーティリティークラスです。
+ * @author "ymiyauchi"
+ * @since 1.2.0
+ *
+ */
 public final class ArrayUtils {
 
     private ArrayUtils() { }

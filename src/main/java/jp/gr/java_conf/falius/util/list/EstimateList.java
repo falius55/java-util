@@ -12,6 +12,7 @@ import java.util.ListIterator;
  * 常にいずれかの要素が指定されている。
  * リストが空の時に限り、指定インデックスは-1になる。
  * @author "ymiyauchi"
+ * @since 1.2.0
  *
  */
 public class EstimateList<E> implements List<E>, Checkable<E> {
@@ -50,6 +51,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * 指定された値を保持していなければ何もせずにfalseを返します。
      * @param val
      * @return 新たな指定値の設定に成功するとtrue
+     * @since 1.2.0
      */
     public boolean estimate(E val) {
         int index = mValues.indexOf(val);
@@ -64,6 +66,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * 指定値を設定します。
      * estimate(E val)と同等です。
      * @param e
+     * @since 1.2.0
      */
     @Override
     public void check(E e) {
@@ -77,6 +80,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * @param index
      * @return 新たな指定値の設定に成功するとtrue
      * @throws IllegalArgumentException 引数が負の数だった場合
+     * @since 1.2.0
      */
     public boolean estimateByIndex(int index) {
         if (index < 0) {
@@ -99,6 +103,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * 指定している要素のインデックスを返します。
      * 未指定の場合、最初の値を指定していると見なします。
      * @return 指定要素のインデックス。保持要素がなければ－１
+     * @since 1.2.0
      */
     public int estimatedIndex() {
         if (mIndex < 0 && size() > 0) {
@@ -110,7 +115,8 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
     /**
      * 指定している要素を返します。
      * @return
-     * @throws IllegalSttateException 保持要素が存在しない場合
+     * @throws IllegalStateException 保持要素が存在しない場合
+     * @since 1.2.0
      */
     public E estimatedValue() {
         int index = estimatedIndex();
@@ -126,6 +132,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * 現在指定されている値が最後の値である場合には、最初の値が新たに指定されます。
      * 要素を保持していなければ何もしません。
      * @return
+     * @since 1.2.0
      */
     public boolean estimateNext() {
         int index = estimatedIndex();
@@ -147,6 +154,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * 現在指定されている値が最初の値である場合には、最後の値が新たに指定されます。
      * 要素を保持していなければ何もしません。
      * @return
+     * @since 1.2.0
      */
     public boolean estimatePrev() {
         int index = estimatedIndex();
@@ -163,36 +171,64 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public int size() {
         return mValues.size();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean isEmpty() {
         return mValues.isEmpty();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean contains(Object o) {
         return mValues.contains(o);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public Iterator<E> iterator() {
         return mValues.iterator();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public Object[] toArray() {
         return mValues.toArray();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public <T> T[] toArray(T[] a) {
         return mValues.toArray(a);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean add(E e) {
         return mValues.add(e);
@@ -202,6 +238,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * {@inheritDoc}
      * 指定されている値が削除された場合、直後の値に指定が移る。
      * 最後の値が指定されていて削除された場合、直前の値が指定される。
+     * @since 1.2.0
      */
     @Override
     public boolean remove(Object o) {
@@ -214,16 +251,28 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean containsAll(Collection<?> c) {
         return mValues.containsAll(c);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean addAll(Collection<? extends E> c) {
         return mValues.addAll(c);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
         if (index <= mIndex) {
@@ -232,6 +281,10 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return mValues.addAll(index, c);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public boolean removeAll(Collection<?> c) {
         boolean ret = true;
@@ -246,6 +299,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
     /**
      * {@inheritDoc}
      * 指定されているのと同じ要素を複数保持している場合、予期しない動作をする可能性があります。
+     * @since 1.2.0
      */
     @Override
     public boolean retainAll(Collection<?> c) {
@@ -255,12 +309,20 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return ret;
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public void clear() {
         mValues.clear();
         mIndex = -1;
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public E get(int index) {
         return mValues.get(index);
@@ -269,12 +331,17 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
     /**
      * {@inheritDoc}
      * 指定要素を置き換えると、置き換えられた要素がそのまま指定されます。
+     * @since 1.2.0
      */
     @Override
     public E set(int index, E element) {
         return mValues.set(index, element);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public void add(int index, E element) {
         if (index <= mIndex) {
@@ -283,6 +350,10 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         mValues.add(index, element);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public E remove(int index) {
         // 削除するものがないなら何もしない。
@@ -302,21 +373,37 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return mValues.remove(index);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public int indexOf(Object o) {
         return mValues.indexOf(o);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public int lastIndexOf(Object o) {
         return mValues.lastIndexOf(o);
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public ListIterator<E> listIterator() {
         return mValues.listIterator();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public ListIterator<E> listIterator(int index) {
         return mValues.listIterator(index);
@@ -324,6 +411,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
 
     /**
      * {@inheritDoc}
+     * @since 1.2.0
      */
     @Override
     public EstimateList<E> subList(int fromIndex, int toIndex) {
@@ -331,6 +419,10 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
         return ret;
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.2.0
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("index: ").append(mIndex).append(System.lineSeparator());
@@ -343,7 +435,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
      * サブリスト用クラス
      * このクラスのインスタンスへの変更は、オリジナルのインスタンスにも影響する
      * @author "ymiyauchi"
-     *
+     * @since 1.2.0
      */
     private class EstimateListView extends EstimateList<E> {
         // TODO: clear()以外の操作(estimateByIndex(int)など)も追加する
@@ -357,6 +449,7 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
          * @param listView アウタークラスで保持している要素のサブリスト
          * @param fromIndex サブリストの開始インデックス
          * @param toIndex サブリストの終了インデックス
+         * @since 1.2.0
          */
         private EstimateListView(EstimateList<E> original, List<E> listView, int fromIndex, int toIndex) {
             super(listView);
@@ -373,6 +466,10 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
             }
         }
 
+        /**
+         * {@inheritDoc}
+         * @since 1.2.0
+         */
         @Override
         public void clear() {
             super.clear();
@@ -384,6 +481,10 @@ public class EstimateList<E> implements List<E>, Checkable<E> {
             }
         }
 
+        /**
+         * {@inheritDoc}
+         * @since 1.2.0
+         */
         @Override
         public int estimatedIndex() {
             return super.mIndex;

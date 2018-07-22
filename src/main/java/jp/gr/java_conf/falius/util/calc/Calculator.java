@@ -3,15 +3,23 @@ package jp.gr.java_conf.falius.util.calc;
 import jp.gr.java_conf.falius.util.ArrayUtils;
 import jp.gr.java_conf.falius.util.list.EstimateList;
 
+/**
+ * 各種計算を行うユーティリティークラスです。
+ * @author "ymiyauchi"
+ * @since 1.2.0
+ *
+ */
 public final class Calculator {
 
-    private Calculator() {}
+    private Calculator() {
+    }
 
     /**
      * 合計値を計算します。
      * @param start
      * @param end
      * @return
+     * @since 1.2.0
      */
     public static int sum(int start, int end) {
         if (end < start) {
@@ -21,7 +29,7 @@ public final class Calculator {
         }
 
         int ret = 0;
-        for (int i = start; i <= end; i++ ) {
+        for (int i = start; i <= end; i++) {
             ret += i;
         }
 
@@ -33,6 +41,7 @@ public final class Calculator {
      * @param first
      * @param others
      * @return
+     * @since 1.2.0
      */
     public static int average(int first, int... others) {
         int sum = first;
@@ -47,6 +56,7 @@ public final class Calculator {
      * @param param
      * @return
      * @throws IllegalArgumentException 引数リストに要素が入っていない場合
+     * @since 1.2.0
      */
     public static int deviation(EstimateList<Integer> param) {
         if (param.isEmpty()) {
@@ -67,6 +77,7 @@ public final class Calculator {
      * @param otherScores 他の点数
      * @return
      * @throws IllegalArgumentException 引数が負の数の場合
+     * @since 1.2.0
      */
     public static int deviation(int score, int... otherScores) {
 
@@ -88,6 +99,7 @@ public final class Calculator {
      * @param others
      * @return
      * @throws IllegalArgumentException 引数が負の数の場合
+     * @since 1.2.0
      */
     public static int variance(int first, int... others) {
         if (first < 0) {
@@ -117,6 +129,7 @@ public final class Calculator {
      * @param others
      * @return
      * @throws IllegalArgumentException 引数が負の数の場合
+     * @since 1.2.0
      */
     public static int standardDeviation(int first, int... others) {
         // 分散の平方根
@@ -125,10 +138,11 @@ public final class Calculator {
 
     /**
      * 順列の場合の数(nPr)を計算します。
-     * @param n n >= 0, n >= r を満たす数
-     * @param r r >= 0, r <= n を満たす数
+     * @param n {@code n >= 0, n >= r} を満たす数
+     * @param r {@code r >= 0, r <= n} を満たす数
      * @return
-     * @throws IllegalArgumentException 引数が負の数であった場合、r > n であった場合
+     * @throws IllegalArgumentException 引数が負の数であった場合、{@code r > n} であった場合
+     * @since 1.2.0
      */
     public static int permutation(int n, int r) {
         if (n < 0 || r < 0) {
@@ -149,7 +163,8 @@ public final class Calculator {
      * 階乗(n!)を計算します。
      * @param n
      * @return
-     * @throws IllegalArgumentException n < 0の場合
+     * @throws IllegalArgumentException {@code n < 0}の場合
+     * @since 1.2.0
      */
     public static int factorial(int n) {
         return permutation(n, n);
@@ -160,7 +175,8 @@ public final class Calculator {
      * @param n
      * @param r
      * @return
-     * @throws IllegalArgumentException n < 0 または r < 0 の場合
+     * @throws IllegalArgumentException {@code n < 0} または {@code r < 0} の場合
+     * @since 1.2.0
      */
     public static int conbination(int n, int r) {
         if (n < 0 || r < 0) {

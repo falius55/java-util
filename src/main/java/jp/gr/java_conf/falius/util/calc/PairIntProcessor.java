@@ -1,8 +1,9 @@
 package jp.gr.java_conf.falius.util.calc;
 
 /**
- * 約数を表すクラスです
+ * ２つの値を処理するクラスです。
  * @author "ymiyauchi"
+ * @since 1.2.0
  *
  */
 public class PairIntProcessor {
@@ -22,6 +23,7 @@ public class PairIntProcessor {
      * 最大公約数を求めます
      * @return
      * @throws ArithmeticException firstおよびsecondにゼロが含まれている場合
+     * @since 1.2.0
      */
     public int greatestCommonDivisor() {
         int x = mFirst > mSecond ? mFirst : mSecond;
@@ -39,6 +41,7 @@ public class PairIntProcessor {
     /**
      * 最小公倍数を求めます
      * @return
+     * @since 1.2.0
      */
     public int leastCommonMultiple() {
         return mFirst *mSecond / greatestCommonDivisor();

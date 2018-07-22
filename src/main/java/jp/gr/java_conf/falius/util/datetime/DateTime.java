@@ -11,6 +11,8 @@ import java.util.Objects;
  * <p>
  * 日付や日時を扱う不変クラスです
  * 文字列のフォーマット機能もあります
+ *
+ * @since 1.1.1
  */
 
 public final class DateTime implements Comparable<DateTime> {
@@ -25,10 +27,18 @@ public final class DateTime implements Comparable<DateTime> {
         mCalendar = cal;
     }
 
+    /**
+     * 現在日時を返します。
+     * @return 現在日時のインスタンス
+     */
     public static DateTime now() {
         return newInstance();
     }
 
+    /**
+     * now()と同じです。
+     * @return 現在日時のインスタンス
+     */
     public static DateTime newInstance() {
         return new DateTime(Calendar.getInstance());
     }
